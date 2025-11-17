@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Learning Nexus - Free STEM Education for All | ReIgnitia</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <!--<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>-->
+    <script type="module" src="https://ajax.googleapis.com/ajax/libs/model-viewer/3.4.0/model-viewer.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <style>
+        :root {
+            --primary: #32b8c6;
+            --primary-dark: #2d9fb2;
+            --accent-warm: #e68161;
+            --bg-dark: #0a1628;
+            --bg-medium: #132238;
+            --bg-light: #1a2d47;
+            --text: #e8f1f5;
+            --text-dim: #a7b8c4;
+            --text-muted: #6b7c8c;
+            --glass: rgba(26, 45, 71, 0.6);
+            --border: rgba(50, 184, 198, 0.2);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            cursor: none;
+        }
+
+        /* Custom Cursor */
+        .custom-cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            mix-blend-mode: difference;
+            transition: transform 0.2s ease;
+        }
+
+        .custom-cursor.hover {
+            transform: scale(1.5);
+            background: var(--primary);
+        }
+
+        /* Background Canvas */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .nav-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 20px 40px;
+            background: rgba(10, 22, 40, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .nav-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .nav-logo:hover {
+            color: var(--primary);
+        }
+
+        .nav-back {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            text-decoration: none;
+            border-radius: 6px;
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-back:hover {
+            background: var(--glass);
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateX(-4px);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 120px 40px 80px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 30%, rgba(50, 184, 198, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(230, 129, 97, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-subtitle {
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--primary);
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease 0.2s forwards;
+        }
+
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3rem, 6vw, 5rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 30px;
+            letter-spacing: -2px;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease 0.4s forwards;
+        }
+
+        .hero-description {
+            font-size: 20px;
+            line-height: 1.6;
+            color: var(--text-dim);
+            margin-bottom: 40px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease 0.6s forwards;
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease 0.8s forwards;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-family: 'Space Mono', monospace;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: block;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        /* Section Styles */
+        .content-section {
+            padding: 100px 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 60px;
+            margin-bottom: 60px;
+            align-items: start;
+        }
+
+        .section-number {
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--primary);
+            position: sticky;
+            top: 140px;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .section-description {
+            font-size: 18px;
+            line-height: 1.7;
+            color: var(--text-dim);
+            margin-top: 20px;
+        }
+
+        /* Feature Cards */
+        .feature-card {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px;
+            backdrop-filter: blur(20px);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.15));
+            z-index: -1;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--primary);
+            box-shadow: 0 30px 60px rgba(50, 184, 198, 0.2);
+        }
+
+        .feature-card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-card-text {
+            font-size: 17px;
+            line-height: 1.7;
+            color: var(--text-dim);
+            position: relative;
+            z-index: 1;
+            margin-bottom: 20px;
+        }
+
+        /* Canvas Container */
+        .canvas-container {
+            background: rgba(50, 184, 198, 0.02);
+            border: 1px solid rgba(50, 184, 198, 0.2);
+            border-radius: 12px;
+            position: relative;
+            margin: 30px 0;
+            overflow: hidden;
+        }
+
+        .canvas-3d {
+            width: 100%;
+            height: 500px;
+            display: block;
+            cursor: grab;
+        }
+
+        .canvas-3d:active {
+            cursor: grabbing;
+        }
+
+        /* Links */
+        .resource-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: gap 0.3s ease;
+            margin-right: 20px;
+            margin-top: 10px;
+        }
+
+        .resource-link:hover {
+            gap: 12px;
+        }
+
+        .resource-link::after {
+            content: '→';
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .section-header {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .hero-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-header {
+                padding: 15px 20px;
+            }
+
+            .hero {
+                padding: 100px 20px 60px;
+            }
+
+            .content-section {
+                padding: 60px 20px;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="custom-cursor" id="cursor"></div>
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="main-container">
+        <!-- Navigation -->
+        <nav class="nav-header">
+            <div class="nav-content">
+                <a href="../" class="nav-logo">ReIgnitia</a>
+                <a href="../dashboard" class="nav-back">← Back to Dashboard</a>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <div class="hero-subtitle">Free Education Platform</div>
+                <h1 class="hero-title">Learning Nexus</h1>
+                <p class="hero-description">
+                    Interactive career roadmaps, 3D science simulations, free courses from top universities, and open
+                    educational resources. All free, no login required, accessible to everyone.
+                </p>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">2,500+</span>
+                        <span class="stat-label">Free Courses</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">160+</span>
+                        <span class="stat-label">Lab Simulations</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">50+</span>
+                        <span class="stat-label">Career Paths</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">100%</span>
+                        <span class="stat-label">Free Access</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Section 1: Interactive Roadmaps -->
+        <section class="content-section">
+            <div class="section-header">
+                <div class="section-number">01 / Roadmaps</div>
+                <div>
+                    <h2 class="section-title">Interactive Career Pathways</h2>
+                    <p class="section-description">
+                        Visual roadmaps show exactly what to learn, when to learn it, and how to advance your career.
+                        Based on roadmap.sh, these paths break down complex fields into manageable steps with curated
+                        resources.
+                    </p>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Computer Science & Engineering</h3>
+                <p class="feature-card-text">
+                    Step-by-step guides for software development, data science, AI, cybersecurity, and more. Each node
+                    reveals required skills, timeframes, and recommended courses.
+                </p>
+                <div class="roadmap-grid">
+                    <a href="https://roadmap.sh/computer-science" target="_blank" class="resource-link">Computer Science
+                        Fundamentals</a>
+                    <a href="https://roadmap.sh/python" target="_blank" class="resource-link">Python Developer</a>
+                    <a href="https://roadmap.sh/javascript" target="_blank" class="resource-link">JavaScript
+                        Developer</a>
+                    <a href="https://roadmap.sh/react" target="_blank" class="resource-link">React Developer</a>
+                    <a href="https://roadmap.sh/nodejs" target="_blank" class="resource-link">Node.js Backend</a>
+                    <a href="https://roadmap.sh/devops" target="_blank" class="resource-link">DevOps Engineer</a>
+                    <a href="https://roadmap.sh/ai-data-scientist" target="_blank" class="resource-link">AI & Data
+                        Science</a>
+                    <a href="https://roadmap.sh/cyber-security" target="_blank" class="resource-link">Cybersecurity</a>
+                    <a href="https://roadmap.sh/machine-learning" target="_blank" class="resource-link">Machine
+                        Learning</a>
+                    <a href="https://roadmap.sh/data-analyst" target="_blank" class="resource-link">Data Analyst</a>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Mathematics & Physics Pathways</h3>
+                <p class="feature-card-text">
+                    From foundational algebra to advanced calculus, linear algebra, and physics. Free resources from top
+                    universities guide your learning journey.
+                </p>
+                <div class="roadmap-grid">
+                    <a href="https://ocw.mit.edu/courses/18-01sc-single-variable-calculus-fall-2010/" target="_blank"
+                        class="resource-link">MIT Calculus I</a>
+                    <a href="https://ocw.mit.edu/courses/18-02sc-multivariable-calculus-fall-2010/" target="_blank"
+                        class="resource-link">MIT Multivariable Calculus</a>
+                    <a href="https://ocw.mit.edu/courses/18-06sc-linear-algebra-fall-2011/" target="_blank"
+                        class="resource-link">MIT Linear Algebra</a>
+                    <a href="https://ocw.mit.edu/courses/18-03sc-differential-equations-fall-2011/" target="_blank"
+                        class="resource-link">MIT Differential Equations</a>
+                    <a href="https://ocw.mit.edu/courses/8-01sc-classical-mechanics-fall-2016/" target="_blank"
+                        class="resource-link">MIT Classical Mechanics</a>
+                    <a href="https://ocw.mit.edu/courses/8-02-physics-ii-electricity-and-magnetism-spring-2019/"
+                        target="_blank" class="resource-link">MIT Electricity & Magnetism</a>
+                    <a href="https://www.khanacademy.org/math/calculus-1" target="_blank" class="resource-link">Khan
+                        Academy Calculus</a>
+                    <a href="https://www.khanacademy.org/science/physics" target="_blank" class="resource-link">Khan
+                        Academy Physics</a>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Biology & Chemistry Learning Paths</h3>
+                <p class="feature-card-text">
+                    Structured courses in molecular biology, genetics, organic chemistry, and biochemistry from leading
+                    educational platforms.
+                </p>
+                <div class="roadmap-grid">
+                    <a href="https://ocw.mit.edu/courses/7-012-introduction-to-biology-fall-2004/" target="_blank"
+                        class="resource-link">MIT Intro to Biology</a>
+                    <a href="https://ocw.mit.edu/courses/7-06-cell-biology-spring-2007/" target="_blank"
+                        class="resource-link">MIT Cell Biology</a>
+                    <a href="https://ocw.mit.edu/courses/5-111sc-principles-of-chemical-science-fall-2014/"
+                        target="_blank" class="resource-link">MIT Chemistry Principles</a>
+                    <a href="https://ocw.mit.edu/courses/5-12-organic-chemistry-i-spring-2005/" target="_blank"
+                        class="resource-link">MIT Organic Chemistry</a>
+                    <a href="https://www.khanacademy.org/science/biology" target="_blank" class="resource-link">Khan
+                        Academy Biology</a>
+                    <a href="https://www.khanacademy.org/science/chemistry" target="_blank" class="resource-link">Khan
+                        Academy Chemistry</a>
+                    <a href="https://www.edx.org/learn/biology" target="_blank" class="resource-link">edX Biology
+                        Courses</a>
+                    <a href="https://www.coursera.org/courses?query=biochemistry" target="_blank"
+                        class="resource-link">Coursera Biochemistry</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: 3D Science Simulations -->
+        <section class="content-section">
+            <div class="section-header">
+                <div class="section-number">02 / Simulations</div>
+                <div>
+                    <h2 class="section-title">Interactive Science Labs</h2>
+                    <p class="section-description">
+                        Hands-on virtual experiments in physics, chemistry, biology, and earth science. No equipment
+                        needed. Explore molecular structures, planetary motion, circuit building, and more.
+                    </p>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">PhET Interactive Simulations</h3>
+                <p class="feature-card-text">
+                    Over 160 free science and math simulations from the University of Colorado Boulder. Research-based,
+                    covering topics from elementary school to university level.
+                </p>
+                <div class="canvas-container" style="height: 500px; padding: 0; border: none; overflow: visible;">
+                    <div class="sketchfab-embed-wrapper" style="height: 100%;">
+                        <iframe title="Chromosome structure" frameborder="0" allowfullscreen mozallowfullscreen="true"
+                            webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking"
+                            xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share
+                            src="https://sketchfab.com/models/cc33bb1ebe6141b08d0d06f1bbebc2b7/embed?autostart=1"
+                            style="width: 100%; height: 100%; border-radius: 12px; border: 1px solid rgba(50, 184, 198, 0.2);">
+                        </iframe>
+                    </div>
+                </div>
+                <div class="roadmap-grid">
+                    <a href="https://phet.colorado.edu/en/simulations/filter?subjects=physics&type=html,prototype"
+                        target="_blank" class="resource-link">Physics Simulations (80+)</a>
+                    <a href="https://phet.colorado.edu/en/simulations/filter?subjects=chemistry&type=html,prototype"
+                        target="_blank" class="resource-link">Chemistry Simulations (50+)</a>
+                    <a href="https://phet.colorado.edu/en/simulations/filter?subjects=biology&type=html,prototype"
+                        target="_blank" class="resource-link">Biology Simulations (15+)</a>
+                    <a href="https://phet.colorado.edu/en/simulations/filter?subjects=earth-and-space&type=html,prototype"
+                        target="_blank" class="resource-link">Earth Science (10+)</a>
+                    <a href="https://phet.colorado.edu/en/simulations/filter?subjects=math-and-statistics&type=html,prototype"
+                        target="_blank" class="resource-link">Math Simulations (25+)</a>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Featured Simulations by Topic</h3>
+                <p class="feature-card-text">
+                    Popular simulations for key STEM concepts. Circuit building, molecular interactions, planetary
+                    orbits, atomic structure, and chemical reactions.
+                </p>
+                <div class="roadmap-grid">
+                    <a href="https://phet.colorado.edu/sims/html/circuit-construction-kit-dc/latest/circuit-construction-kit-dc_en.html"
+                        target="_blank" class="resource-link">Circuit Construction Kit</a>
+                    <a href="https://phet.colorado.edu/sims/html/gravity-and-orbits/latest/gravity-and-orbits_en.html"
+                        target="_blank" class="resource-link">Gravity and Orbits</a>
+                    <a href="https://phet.colorado.edu/sims/html/build-an-atom/latest/build-an-atom_en.html"
+                        target="_blank" class="resource-link">Build an Atom</a>
+                    <a href="https://phet.colorado.edu/sims/html/molecule-shapes/latest/molecule-shapes_en.html"
+                        target="_blank" class="resource-link">Molecule Shapes</a>
+                    <a href="https://phet.colorado.edu/sims/html/ph-scale/latest/ph-scale_en.html" target="_blank"
+                        class="resource-link">pH Scale</a>
+                    <a href="https://phet.colorado.edu/sims/html/energy-forms-and-changes/latest/energy-forms-and-changes_en.html"
+                        target="_blank" class="resource-link">Energy Forms & Changes</a>
+                    <a href="https://phet.colorado.edu/sims/html/wave-interference/latest/wave-interference_en.html"
+                        target="_blank" class="resource-link">Wave Interference</a>
+                    <a href="https://phet.colorado.edu/sims/html/projectile-motion/latest/projectile-motion_en.html"
+                        target="_blank" class="resource-link">Projectile Motion</a>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Solar System Explorer</h3>
+                <p class="feature-card-text">
+                    Navigate through our solar system with NASA Eyes. Real-time data on planet positions, asteroid
+                    trajectories, and spacecraft missions.
+                </p>
+                <div class="canvas-container" style="height: 500px; padding: 0; border: none; overflow: visible;">
+                    <div class="sketchfab-embed-wrapper" style="height: 100%;">
+                        <iframe title="Solar System animation" frameborder="0" allowfullscreen mozallowfullscreen="true"
+                            webkitallowfullscreen="true" allow="autoplay; fullscreen; xr-spatial-tracking"
+                            xr-spatial-tracking execution-while-out-of-viewport execution-while-not-rendered web-share
+                            src="https://sketchfab.com/models/b7c69a6b655b47c99f871d5ec5aee854/embed?autostart=1&annotations_visible=1"
+                            style="width: 100%; height: 100%; border-radius: 12px; border: 1px solid rgba(50, 184, 198, 0.2);">
+                        </iframe>
+                    </div>
+                </div>
+                <div class="roadmap-grid">
+                    <a href="https://eyes.nasa.gov/apps/solar-system/" target="_blank" class="resource-link">NASA Eyes
+                        on the Solar System</a>
+                    <a href="https://eyes.nasa.gov/apps/asteroids/" target="_blank" class="resource-link">NASA Eyes on
+                        Asteroids</a>
+                    <a href="https://eyes.nasa.gov/apps/earth/" target="_blank" class="resource-link">NASA Eyes on
+                        Earth</a>
+                    <a href="https://exoplanets.nasa.gov/eyes-on-exoplanets/" target="_blank" class="resource-link">Eyes
+                        on Exoplanets</a>
+                </div>
+            </div>
+        </section>
+        <!-- Section 3: MOOC Aggregator -->
+        <section class="content-section">
+            <div class="section-header">
+                <div class="section-number">03 / Courses</div>
+                <div>
+                    <h2 class="section-title">Free University Courses</h2>
+                    <p class="section-description">
+                        Access thousands of free courses from MIT, Stanford, Harvard, and more. Learn from world-class
+                        professors without paying tuition fees. Earn certificates and build your skills.
+                    </p>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">MIT OpenCourseWare</h3>
+                <p class="feature-card-text">
+                    Free lecture notes, exams, and videos from 2,500+ MIT courses. Mathematics, physics, engineering,
+                    computer science, and more. All materials available for self-paced learning.
+                </p>
+                <div class="roadmap-grid">
+                    <a href="https://ocw.mit.edu/courses/mathematics/" target="_blank" class="resource-link">Mathematics
+                        (180+ courses)</a>
+                    <a href="https://ocw.mit.edu/courses/physics/" target="_blank" class="resource-link">Physics (120+
+                        courses)</a>
+                    <a href="https://ocw.mit.edu/courses/electrical-engineering-and-computer-science/" target="_blank"
+                        class="resource-link">Computer Science (250+ courses)</a>
+                    <a href="https://ocw.mit.edu/courses/mechanical-engineering/" target="_blank"
+                        class="resource-link">Mechanical Engineering (140+ courses)</a>
+                    <a href="https://ocw.mit.edu/courses/chemistry/" target="_blank" class="resource-link">Chemistry
+                        (75+ courses)</a>
+                    <a href="https://ocw.mit.edu/courses/biology/" target="_blank" class="resource-link">Biology (80+
+                        courses)</a>
+                    <a href="https://ocw.mit.edu/courses/aeronautics-and-astronautics/" target="_blank"
+                        class="resource-link">Aerospace Engineering (60+ courses)</a>
+                    <a href="https://ocw.mit.edu/courses/chemical-engineering/" target="_blank"
+                        class="resource-link">Chemical Engineering (50+ courses)</a>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Khan Academy</h3>
+                <p class="feature-card-text">
+                    Free personalized learning platform covering math, science, computer programming, history, art, and
+                    economics. Practice exercises, instructional videos, and progress tracking.
+                </p>
+                <div class="roadmap-grid">
+                    <a href="https://www.khanacademy.org/math" target="_blank" class="resource-link">Mathematics (All
+                        Levels)</a>
+                    <a href="https://www.khanacademy.org/science/physics" target="_blank"
+                        class="resource-link">Physics</a>
+                    <a href="https://www.khanacademy.org/science/chemistry" target="_blank"
+                        class="resource-link">Chemistry</a>
+                    <a href="https://www.khanacademy.org/science/biology" target="_blank"
+                        class="resource-link">Biology</a>
+                    <a href="https://www.khanacademy.org/computing" target="_blank" class="resource-link">Computer
+                        Programming</a>
+                    <a href="https://www.khanacademy.org/science/ap-biology" target="_blank" class="resource-link">AP
+                        Biology</a>
+                    <a href="https://www.khanacademy.org/science/ap-chemistry" target="_blank" class="resource-link">AP
+                        Chemistry</a>
+                    <a href="https://www.khanacademy.org/science/ap-physics-1" target="_blank" class="resource-link">AP
+                        Physics</a>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Coursera & edX</h3>
+                <p class="feature-card-text">
+                    Thousands of free courses from top universities worldwide. Audit courses at no cost, or pay only if
+                    you need a verified certificate.
+                </p>
+                <div class="roadmap-grid">
+                    <a href="https://www.coursera.org/courses?query=computer%20science" target="_blank"
+                        class="resource-link">Coursera Computer Science</a>
+                    <a href="https://www.coursera.org/courses?query=data%20science" target="_blank"
+                        class="resource-link">Coursera Data Science</a>
+                    <a href="https://www.coursera.org/courses?query=mathematics" target="_blank"
+                        class="resource-link">Coursera Mathematics</a>
+                    <a href="https://www.edx.org/learn/computer-science" target="_blank" class="resource-link">edX
+                        Computer Science</a>
+                    <a href="https://www.edx.org/learn/engineering" target="_blank" class="resource-link">edX
+                        Engineering</a>
+                    <a href="https://www.edx.org/learn/physics" target="_blank" class="resource-link">edX Physics</a>
+                    <a href="https://www.edx.org/learn/biology" target="_blank" class="resource-link">edX Biology</a>
+                    <a href="https://www.udacity.com/courses/all" target="_blank" class="resource-link">Udacity Free
+                        Courses</a>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Specialized STEM Platforms</h3>
+                <p class="feature-card-text">
+                    Platform-specific courses for coding, data science, and technical skills. FreeCodeCamp, The Odin
+                    Project, and more offer complete curriculum paths.
+                </p>
+                <div class="roadmap-grid">
+                    <a href="https://www.freecodecamp.org/learn" target="_blank" class="resource-link">FreeCodeCamp
+                        (Full Stack)</a>
+                    <a href="https://www.theodinproject.com/" target="_blank" class="resource-link">The Odin Project
+                        (Web Dev)</a>
+                    <a href="https://www.codecademy.com/catalog/subject/all" target="_blank"
+                        class="resource-link">Codecademy Free Courses</a>
+                    <a href="https://cs50.harvard.edu/x/" target="_blank" class="resource-link">Harvard CS50</a>
+                    <a href="https://www.kaggle.com/learn" target="_blank" class="resource-link">Kaggle Learn (Data
+                        Science)</a>
+                    <a href="https://www.datacamp.com/courses" target="_blank" class="resource-link">DataCamp Intro
+                        Courses</a>
+                    <a href="https://www.sololearn.com/" target="_blank" class="resource-link">SoloLearn (Mobile
+                        Learning)</a>
+                    <a href="https://brilliant.org/" target="_blank" class="resource-link">Brilliant (Interactive
+                        Math)</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Open Educational Resources -->
+        <section class="content-section">
+            <div class="section-header">
+                <div class="section-number">04 / Resources</div>
+                <div>
+                    <h2 class="section-title">Open Educational Resources</h2>
+                    <p class="section-description">
+                        Free textbooks, lecture videos, coding environments, and problem solvers. No subscriptions, no
+                        paywalls. Learn at your own pace with quality materials.
+                    </p>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Free Textbooks & Study Materials</h3>
+                <p class="feature-card-text">
+                    Open-source textbooks covering mathematics, physics, chemistry, biology, and computer science.
+                    Download PDFs or read online at no cost.
+                </p>
+                <div class="roadmap-grid">
+                    <a href="https://openstax.org/" target="_blank" class="resource-link">OpenStax (College
+                        Textbooks)</a>
+                    <a href="https://www.gutenberg.org/" target="_blank" class="resource-link">Project Gutenberg
+                        (70,000+ books)</a>
+                    <a href="https://openlibrary.org/" target="_blank" class="resource-link">Open Library</a>
+                    <a href="https://www.ck12.org/student/" target="_blank" class="resource-link">CK-12 Foundation (K-12
+                        STEM)</a>
+                    <a href="https://open.umn.edu/opentextbooks/" target="_blank" class="resource-link">Open Textbook
+                        Library</a>
+                    <a href="https://bookboon.com/" target="_blank" class="resource-link">Bookboon Free eTextbooks</a>
+                    <a href="https://www.textbookrevolution.org/" target="_blank" class="resource-link">Textbook
+                        Revolution</a>
+                    <a href="https://chem.libretexts.org/" target="_blank" class="resource-link">LibreTexts
+                        Chemistry</a>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Video Lecture Collections</h3>
+                <p class="feature-card-text">
+                    Watch complete lecture series from top professors. MIT, Stanford, Yale, and other universities
+                    publish full courses on YouTube and dedicated platforms.
+                </p>
+                <div class="roadmap-grid">
+                    <a href="https://www.youtube.com/@mitocw" target="_blank" class="resource-link">MIT OpenCourseWare
+                        YouTube</a>
+                    <a href="https://www.youtube.com/@stanfordonline" target="_blank" class="resource-link">Stanford
+                        Online</a>
+                    <a href="https://www.youtube.com/@YaleCourses" target="_blank" class="resource-link">Yale
+                        Courses</a>
+                    <a href="https://www.youtube.com/@3blue1brown" target="_blank" class="resource-link">3Blue1Brown
+                        (Math)</a>
+                    <a href="https://www.youtube.com/@ProfessorLeonard" target="_blank" class="resource-link">Professor
+                        Leonard (Calculus)</a>
+                    <a href="https://www.youtube.com/@crashcourse" target="_blank" class="resource-link">CrashCourse</a>
+                    <a href="https://ed.ted.com/" target="_blank" class="resource-link">TED-Ed</a>
+                    <a href="https://www.youtube.com/@Freecodecamp" target="_blank" class="resource-link">FreeCodeCamp
+                        Videos</a>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Interactive Coding Environments</h3>
+                <p class="feature-card-text">
+                    Write and run code directly in your browser. No installation required. Practice coding with
+                    real-time feedback and collaboration tools.
+                </p>
+                <div class="roadmap-grid">
+                    <a href="https://replit.com/" target="_blank" class="resource-link">Replit (50+ Languages)</a>
+                    <a href="https://codepen.io/" target="_blank" class="resource-link">CodePen (HTML/CSS/JS)</a>
+                    <a href="https://codesandbox.io/" target="_blank" class="resource-link">CodeSandbox (Web Apps)</a>
+                    <a href="https://www.onlinegdb.com/" target="_blank" class="resource-link">OnlineGDB
+                        (C/C++/Python)</a>
+                    <a href="https://jupyter.org/try" target="_blank" class="resource-link">Jupyter Notebooks</a>
+                    <a href="https://www.programiz.com/python-programming/online-compiler/" target="_blank"
+                        class="resource-link">Programiz Python</a>
+                    <a href="https://playcode.io/" target="_blank" class="resource-link">PlayCode (JavaScript)</a>
+                    <a href="https://glitch.com/" target="_blank" class="resource-link">Glitch (Full Stack)</a>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Math & Science Problem Solvers</h3>
+                <p class="feature-card-text">
+                    Step-by-step solutions for math problems, equation solvers, graphing calculators, and chemistry
+                    tools. Free alternatives to paid homework help sites.
+                </p>
+                <div class="roadmap-grid">
+                    <a href="https://www.symbolab.com/" target="_blank" class="resource-link">Symbolab (Math Solver)</a>
+                    <a href="https://www.wolframalpha.com/" target="_blank" class="resource-link">Wolfram Alpha</a>
+                    <a href="https://www.desmos.com/calculator" target="_blank" class="resource-link">Desmos Graphing
+                        Calculator</a>
+                    <a href="https://www.geogebra.org/" target="_blank" class="resource-link">GeoGebra
+                        (Geometry/Graphing)</a>
+                    <a href="https://quickmath.com/" target="_blank" class="resource-link">QuickMath</a>
+                    <a href="https://www.mathway.com/" target="_blank" class="resource-link">Mathway</a>
+                    <a href="https://www.chemcalc.org/" target="_blank" class="resource-link">ChemCalc (Molecular
+                        Mass)</a>
+                    <a href="https://ptable.com/" target="_blank" class="resource-link">Ptable (Periodic Table)</a>
+                </div>
+            </div>
+        </section>
+        <!-- Footer Section -->
+        <section class="content-section" style="padding-bottom: 60px;">
+            <div class="feature-card"
+                style="text-align: center; background: linear-gradient(135deg, rgba(50, 184, 198, 0.1), rgba(230, 129, 97, 0.1)); border: 2px solid var(--primary);">
+                <h3 class="feature-card-title">Start Learning Today</h3>
+                <p class="feature-card-text" style="max-width: 700px; margin: 0 auto 30px;">
+                    All resources listed are completely free. No hidden fees, no credit card required. Click any link to
+                    begin your learning journey. Education should be accessible to everyone, everywhere.
+                </p>
+                <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                    <a href="https://ocw.mit.edu/" target="_blank"
+                        style="padding: 12px 30px; background: var(--primary); color: var(--bg-dark); text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.3s ease;">MIT
+                        OpenCourseWare</a>
+                    <a href="https://www.khanacademy.org/" target="_blank"
+                        style="padding: 12px 30px; background: var(--primary-dark); border: 2px solid var(--primary); color: var(--bg-dark); text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.3s ease;">Khan
+                        Academy</a>
+                    <a href="https://phet.colorado.edu/" target="_blank"
+                        style="padding: 12px 30px; background: var(--accent-warm); border: 2px solid var(--accent-warm); color: var(--bg-dark); text-decoration: none; border-radius: 8px; font-weight: 600; transition: all 0.3s ease;">PhET
+                        Simulations</a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Custom Cursor
+        const cursor = document.getElementById('cursor');
+        let mouseX = 0;
+        let mouseY = 0;
+        let cursorX = 0;
+        let cursorY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        function animateCursor() {
+            cursorX += (mouseX - cursorX) * 0.2;
+            cursorY += (mouseY - cursorY) * 0.2;
+            cursor.style.left = cursorX + 'px';
+            cursor.style.top = cursorY + 'px';
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        document.querySelectorAll('a, button').forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+        });
+
+        // Background Canvas Animation
+        const bgCanvas = document.getElementById('bg-canvas');
+        const bgCtx = bgCanvas.getContext('2d');
+
+        function resizeBgCanvas() {
+            bgCanvas.width = window.innerWidth;
+            bgCanvas.height = document.documentElement.scrollHeight;
+        }
+        resizeBgCanvas();
+        window.addEventListener('resize', resizeBgCanvas);
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * bgCanvas.width;
+                this.y = Math.random() * bgCanvas.height;
+                this.vx = (Math.random() - 0.5) * 0.5;
+                this.vy = (Math.random() - 0.5) * 0.5;
+                this.radius = Math.random() * 2 + 1;
+                this.opacity = Math.random() * 0.5 + 0.2;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+
+                if (this.x < 0 || this.x > bgCanvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > bgCanvas.height) this.vy *= -1;
+            }
+
+            draw() {
+                bgCtx.beginPath();
+                bgCtx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                bgCtx.fillStyle = `rgba(50, 184, 198, ${this.opacity})`;
+                bgCtx.fill();
+            }
+        }
+
+        const particles = [];
+        for (let i = 0; i < 100; i++) {
+            particles.push(new Particle());
+        }
+
+        function animateBg() {
+            bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+
+            particles.forEach((p1, i) => {
+                particles.slice(i + 1).forEach(p2 => {
+                    const dx = p1.x - p2.x;
+                    const dy = p1.y - p2.y;
+                    const distance = Math.sqrt(dx * dx + dy * dy);
+
+                    if (distance < 150) {
+                        bgCtx.beginPath();
+                        bgCtx.moveTo(p1.x, p1.y);
+                        bgCtx.lineTo(p2.x, p2.y);
+                        bgCtx.strokeStyle = `rgba(50, 184, 198, ${0.15 * (1 - distance / 150)})`;
+                        bgCtx.lineWidth = 1;
+                        bgCtx.stroke();
+                    }
+                });
+            });
+
+            requestAnimationFrame(animateBg);
+        }
+        animateBg();
+
+
+        // Responsive canvas resize
+        window.addEventListener('resize', () => {
+            const moleculeWidth = moleculeCanvas.offsetWidth;
+            moleculeCamera.aspect = moleculeWidth / 500;
+            moleculeCamera.updateProjectionMatrix();
+            moleculeRenderer.setSize(moleculeWidth, 500);
+
+            const solarWidth = solarCanvas.offsetWidth;
+            solarCamera.aspect = solarWidth / 500;
+            solarCamera.updateProjectionMatrix();
+            solarRenderer.setSize(solarWidth, 500);
+
+            resizeBgCanvas();
+        });
+
+        // Smooth scroll behavior
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Add scroll reveal animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(card);
+        });
+
+        // Update page title on scroll
+        let lastScroll = 0;
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            const nav = document.querySelector('.nav-header');
+
+            if (currentScroll > lastScroll && currentScroll > 100) {
+                nav.style.transform = 'translateY(-100%)';
+            } else {
+                nav.style.transform = 'translateY(0)';
+            }
+
+            lastScroll = currentScroll;
+        });
+    </script>
+</body>
+
+</html>

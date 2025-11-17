@@ -1,0 +1,3674 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wellness Sanctuary - Mental Health Support for Students | ReIgnitia</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #32b8c6;
+            --primary-dark: #2d9fb2;
+            --accent-warm: #e68161;
+            --accent-purple: #9b6bcc;
+            --accent-green: #4ade80;
+            --bg-dark: #0a1628;
+            --bg-medium: #132238;
+            --bg-light: #1a2d47;
+            --text: #e8f1f5;
+            --text-dim: #a7b8c4;
+            --text-muted: #6b7c8c;
+            --glass: rgba(26, 45, 71, 0.6);
+            --border: rgba(50, 184, 198, 0.2);
+            --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+            --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+            --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            cursor: none;
+        }
+
+        /* Custom Cursor */
+        .custom-cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            mix-blend-mode: difference;
+            transition: transform 0.2s ease;
+        }
+
+        .custom-cursor.hover {
+            transform: scale(1.5);
+            background: var(--primary);
+        }
+
+        /* Background Canvas */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .nav-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 20px 40px;
+            background: rgba(10, 22, 40, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .nav-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .nav-logo:hover {
+            color: var(--primary);
+        }
+
+        .nav-back {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            text-decoration: none;
+            border-radius: 6px;
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-back:hover {
+            background: var(--glass);
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateX(-4px);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 120px 40px 80px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 30%, rgba(50, 184, 198, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(155, 107, 204, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-subtitle {
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--accent-purple);
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease 0.2s forwards;
+        }
+
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3rem, 6vw, 5rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 30px;
+            letter-spacing: -2px;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease 0.4s forwards;
+        }
+
+        .hero-description {
+            font-size: 20px;
+            line-height: 1.6;
+            color: var(--text-dim);
+            margin-bottom: 40px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease 0.6s forwards;
+        }
+
+        /* Crisis Banner */
+        .crisis-banner {
+            background: linear-gradient(135deg, rgba(248, 113, 113, 0.2), rgba(239, 68, 68, 0.2));
+            border: 2px solid #ef4444;
+            border-radius: 12px;
+            padding: 20px 30px;
+            margin: 40px auto;
+            max-width: 800px;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease 0.8s forwards;
+        }
+
+        .crisis-banner h3 {
+            color: #ef4444;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+
+        .crisis-banner p {
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .crisis-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 12px 24px;
+            background: #ef4444;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .crisis-link:hover {
+            background: #dc2626;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4);
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease 1s forwards;
+            max-width: 1000px;
+            margin: 40px auto 0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-family: 'Space Mono', monospace;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent-purple);
+            display: block;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        /* Section Styles */
+        .content-section {
+            padding: 100px 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 60px;
+            margin-bottom: 60px;
+            align-items: start;
+        }
+
+        .section-number {
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--accent-purple);
+            position: sticky;
+            top: 140px;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .section-description {
+            font-size: 18px;
+            line-height: 1.7;
+            color: var(--text-dim);
+            margin-top: 20px;
+        }
+
+        /* Feature Cards */
+        .feature-card {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px;
+            backdrop-filter: blur(20px);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.15));
+            z-index: -1;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent-purple);
+            box-shadow: 0 30px 60px rgba(155, 107, 204, 0.2);
+        }
+
+        .feature-card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-card-text {
+            font-size: 17px;
+            line-height: 1.7;
+            color: var(--text-dim);
+            position: relative;
+            z-index: 1;
+            margin-bottom: 20px;
+        }
+
+        /* Tool Container */
+        .tool-container {
+            background: rgba(50, 184, 198, 0.02);
+            border: 1px solid rgba(50, 184, 198, 0.2);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        /* Canvas Container */
+        .canvas-container {
+            background: rgba(50, 184, 198, 0.02);
+            border: 1px solid rgba(50, 184, 198, 0.2);
+            border-radius: 12px;
+            position: relative;
+            margin: 30px 0;
+            overflow: hidden;
+        }
+
+        .canvas-3d {
+            width: 100%;
+            height: 500px;
+            display: block;
+            cursor: grab;
+        }
+
+        .canvas-3d:active {
+            cursor: grabbing;
+        }
+
+        /* Mood Tracker */
+        .mood-selector {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .mood-btn {
+            padding: 20px;
+            background: rgba(26, 45, 71, 0.5);
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .mood-btn:hover {
+            border-color: var(--accent-purple);
+            transform: translateY(-4px);
+        }
+
+        .mood-btn.active {
+            border-color: var(--accent-purple);
+            background: rgba(155, 107, 204, 0.2);
+        }
+
+        .mood-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .mood-label {
+            font-size: 14px;
+            color: var(--text-dim);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Space Mono', monospace;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: var(--accent-purple);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #8b5abf;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(155, 107, 204, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--accent-purple);
+            color: var(--accent-purple);
+        }
+
+        .btn-danger {
+            background: transparent;
+            border: 1px solid #ef4444;
+            color: #ef4444;
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+
+        .btn-danger:hover {
+            background: rgba(239, 68, 68, 0.1);
+        }
+
+        /* Links */
+        .resource-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--accent-purple);
+            text-decoration: none;
+            font-weight: 500;
+            transition: gap 0.3s ease;
+            margin-right: 20px;
+            margin-top: 10px;
+        }
+
+        .resource-link:hover {
+            gap: 12px;
+        }
+
+        .resource-link::after {
+            content: '→';
+        }
+
+        /* Routine Items Styling */
+        .routine-item {
+            background: rgba(26, 45, 71, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        /* Save Messages */
+        .status-message {
+            font-size: 13px;
+            margin-top: 10px;
+            height: 20px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            font-weight: 600;
+            display: block;
+            text-align: center;
+        }
+
+        .status-success {
+            color: var(--accent-green);
+        }
+
+        .status-error {
+            color: #ef4444;
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes breathe {
+
+            0%,
+            100% {
+                transform: scale(1);
+            }
+
+            50% {
+                transform: scale(1.3);
+            }
+        }
+
+        /* Location Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 22, 40, 0.95);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            backdrop-filter: blur(10px);
+        }
+
+        .country-select {
+            width: 100%;
+            padding: 15px;
+            background: var(--bg-dark);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--text);
+            font-size: 16px;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .section-header {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .hero-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .mood-selector {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-header {
+                padding: 15px 20px;
+            }
+
+            .hero {
+                padding: 100px 20px 60px;
+            }
+
+            .content-section {
+                padding: 60px 20px;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .mood-selector {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Location Selection Modal -->
+    <div id="location-modal" class="modal-overlay">
+        <div class="feature-card"
+            style="max-width: 500px; width: 90%; text-align: center; animation: fadeInUp 0.5s ease;">
+            <h3 class="feature-card-title" style="margin-bottom: 10px;">Welcome to Wellness Sanctuary</h3>
+            <p class="feature-card-text" style="margin-bottom: 20px;">To provide the correct crisis resources for you,
+                please select your country.</p>
+
+            <select id="country-select" class="country-select">
+                <option value="">Select your country...</option>
+                <!-- Options populated by JS -->
+            </select>
+
+            <button class="btn btn-primary" id="confirm-location" style="width: 100%;">Enter Sanctuary</button>
+        </div>
+    </div>
+
+    <div class="custom-cursor" id="cursor"></div>
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="main-container">
+        <!-- Navigation -->
+        <nav class="nav-header">
+            <div class="nav-content">
+                <a href="../" class="nav-logo">ReIgnitia</a>
+                <a href="../dashboard" class="nav-back">← Back to Dashboard</a>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <div class="hero-subtitle">Mental Health & Wellness</div>
+                <h1 class="hero-title">Wellness Sanctuary</h1>
+                <p class="hero-description">
+                    Anonymous mental health tracking, guided breathing exercises, meditation library, CBT tools, peer
+                    support network, and sleep optimization. Your well-being matters.
+                </p>
+
+                <!-- Updated Crisis Banner with IDs for Dynamic Text -->
+                <div class="crisis-banner" id="crisis-banner">
+                    <h3 id="crisis-title">Need Help Now?</h3>
+                    <p id="crisis-desc">If you are in crisis or having thoughts of suicide, help is available 24/7. You
+                        are not alone.</p>
+                    <a href="tel:988" class="crisis-link" id="crisis-main-btn">Call or Text 988 - Suicide & Crisis
+                        Lifeline</a>
+                    <p style="margin-top: 15px; font-size: 14px;" id="crisis-subtext">Free, confidential support
+                        available 24/7/365</p>
+                </div>
+
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">24/7</span>
+                        <span class="stat-label">Crisis Support</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">100%</span>
+                        <span class="stat-label">Anonymous</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">Free</span>
+                        <span class="stat-label">All Resources</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">Safe</span>
+                        <span class="stat-label">Private & Secure</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Section 1: Mental Health Dashboard -->
+        <section class="content-section">
+            <div class="section-header">
+                <div class="section-number">01 / Dashboard</div>
+                <div>
+                    <h2 class="section-title">Mental Health Dashboard</h2>
+                    <p class="section-description">
+                        Track your mood anonymously over time. Identify patterns in triggers and emotions. Data stays on
+                        your device. Beautiful visualizations show your progress.
+                    </p>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Daily Mood Check-In</h3>
+                <p class="feature-card-text">
+                    How are you feeling right now? Select your current mood. Research shows daily check-ins improve
+                    emotional awareness by 40%. Your data is stored locally and never shared.
+                </p>
+                <div class="tool-container">
+                    <div class="mood-selector">
+                        <button class="mood-btn" data-mood="5">
+                            <span class="mood-icon">😊</span>
+                            <span class="mood-label">Great</span>
+                        </button>
+                        <button class="mood-btn" data-mood="4">
+                            <span class="mood-icon">🙂</span>
+                            <span class="mood-label">Good</span>
+                        </button>
+                        <button class="mood-btn" data-mood="3">
+                            <span class="mood-icon">😐</span>
+                            <span class="mood-label">Okay</span>
+                        </button>
+                        <button class="mood-btn" data-mood="2">
+                            <span class="mood-icon">😔</span>
+                            <span class="mood-label">Low</span>
+                        </button>
+                        <button class="mood-btn" data-mood="1">
+                            <span class="mood-icon">😢</span>
+                            <span class="mood-label">Struggling</span>
+                        </button>
+                    </div>
+                    <div style="margin-top: 20px;">
+                        <label
+                            style="display: block; color: var(--text-dim); margin-bottom: 10px; font-size: 14px;">What
+                            triggered this feeling? (optional)</label>
+                        <textarea id="mood-notes"
+                            style="width: 100%; padding: 12px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px; min-height: 100px; resize: vertical;"
+                            placeholder="Exam stress, lack of sleep, social interaction, etc."></textarea>
+                    </div>
+                    <button class="btn btn-primary" style="margin-top: 20px;" id="save-mood">Save Check-In</button>
+                    <!-- Added subtle status message area -->
+                    <span id="mood-status" class="status-message"></span>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Mood Trends Visualization</h3>
+                <p class="feature-card-text">
+                    See your emotional patterns over the past 30 days. Hover over points to see your triggers/notes.
+                    Daily averages are calculated automatically.
+                </p>
+                <div class="tool-container">
+                    <canvas id="mood-chart" style="max-height: 400px;"></canvas>
+                </div>
+                <div style="background: rgba(155, 107, 204, 0.1); border-radius: 8px; padding: 20px; margin-top: 20px;">
+                    <h4 style="color: var(--accent-purple); margin-bottom: 10px;">Your Insights</h4>
+                    <ul id="mood-insights" style="color: var(--text-dim); line-height: 1.8; margin-left: 20px;">
+                        <li>No data yet. Add your first mood check-in above!</li>
+                    </ul>
+                </div>
+                <div class="tool-container" style="margin-top: 20px;">
+                    <h4 style="color: var(--accent-purple); margin-bottom: 10px;">Your Mood Check-ins</h4>
+                    <div id="mood-entries-list"></div>
+                </div>
+
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Crisis Resources</h3>
+                <p class="feature-card-text">
+                    Immediate help is available 24/7. These services are free, confidential, and staffed by trained
+                    counselors. Reach out if you need support.
+                </p>
+                <!-- Added ID container for dynamic country links -->
+                <div style="margin-top: 20px;" id="resource-link-container">
+                    <a href="https://findahelpline.com" target="_blank" class="resource-link">Find A Helpline
+                        (Global)</a>
+                    <a href="https://www.befrienders.org" target="_blank" class="resource-link">Befrienders
+                        Worldwide</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Guided Wellness Activities -->
+        <section class="content-section">
+            <div class="section-header">
+                <div class="section-number">02 / Activities</div>
+                <div>
+                    <h2 class="section-title">Guided Wellness Activities</h2>
+                    <p class="section-description">
+                        3D breathing exercises with visual cues. Meditation library with sessions from 5 to 30 minutes.
+                        Progressive muscle relaxation guides. Gratitude journaling with prompts.
+                    </p>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">3D Breathing Exercise</h3>
+                <p class="feature-card-text">
+                    Box breathing reduces anxiety in 5 minutes. Follow the expanding sphere: breathe in for 4 seconds,
+                    hold for 4, breathe out for 4, hold for 4. Used by Navy SEALs to manage stress.
+                </p>
+                <div class="canvas-container">
+                    <canvas id="breathing-canvas" class="canvas-3d"></canvas>
+                    <div
+                        style="position: absolute; bottom: 30px; left: 50%; transform: translateX(-50%); text-align: center; width: 100%;">
+                        <div id="breath-instruction"
+                            style="font-size: 2rem; color: var(--text); font-weight: 600; margin-bottom: 15px;">Click
+                            Start to Begin</div>
+                        <div id="breath-timer"
+                            style="font-family: 'Space Mono', monospace; font-size: 3rem; color: var(--accent-purple); margin-bottom: 20px;">
+                            4</div>
+                        <button class="btn btn-primary" id="start-breathing">Start Breathing</button>
+                        <button class="btn btn-secondary" id="stop-breathing"
+                            style="margin-left: 10px; display: none;">Stop</button>
+                    </div>
+                </div>
+                <div style="background: rgba(74, 222, 128, 0.1); border-radius: 8px; padding: 20px; margin-top: 20px;">
+                    <h4 style="color: var(--accent-green); margin-bottom: 10px;">Benefits of Box Breathing</h4>
+                    <ul style="color: var(--text-dim); line-height: 1.8; margin-left: 20px;">
+                        <li>Reduces cortisol (stress hormone) by 25%</li>
+                        <li>Lowers heart rate and blood pressure</li>
+                        <li>Improves focus and decision-making</li>
+                        <li>Activates parasympathetic nervous system</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Meditation Library</h3>
+                <p class="feature-card-text">
+                    Free guided meditations. Sessions range from 5 to 30 minutes.
+                    <br><em>(Note: To play audio, place mp3 files named 'stress.mp3', 'sleep.mp3', 'anxiety.mp3',
+                        'focus.mp3' in an 'audio' folder)</em>
+                </p>
+                <div class="tool-container">
+                    <!-- Hidden Audio Elements -->
+                    <audio id="audio-stress" src="../assets/audio/stress.mp3"></audio>
+                    <audio id="audio-sleep" src="../assets/audio/sleep.mp3"></audio>
+                    <audio id="audio-anxiety" src="../assets/audio/anxiety.mp3"></audio>
+                    <audio id="audio-focus" src="../assets/audio/focus.mp3"></audio>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                        <div
+                            style="background: rgba(26, 45, 71, 0.5); border: 1px solid var(--border); border-radius: 12px; padding: 20px;">
+                            <h4 style="color: var(--accent-purple); margin-bottom: 10px;">Stress Relief</h4>
+                            <p style="font-size: 14px; color: var(--text-dim); margin-bottom: 15px;">10 minutes</p>
+                            <button class="btn btn-secondary" style="width: 100%; padding: 8px;"
+                                onclick="playAudio('stress', this)">Play</button>
+                        </div>
+                        <div
+                            style="background: rgba(26, 45, 71, 0.5); border: 1px solid var(--border); border-radius: 12px; padding: 20px;">
+                            <h4 style="color: var(--accent-purple); margin-bottom: 10px;">Better Sleep</h4>
+                            <p style="font-size: 14px; color: var(--text-dim); margin-bottom: 15px;">15 minutes</p>
+                            <button class="btn btn-secondary" style="width: 100%; padding: 8px;"
+                                onclick="playAudio('sleep', this)">Play</button>
+                        </div>
+                        <div
+                            style="background: rgba(26, 45, 71, 0.5); border: 1px solid var(--border); border-radius: 12px; padding: 20px;">
+                            <h4 style="color: var(--accent-purple); margin-bottom: 10px;">Anxiety Relief</h4>
+                            <p style="font-size: 14px; color: var(--text-dim); margin-bottom: 15px;">8 minutes</p>
+                            <button class="btn btn-secondary" style="width: 100%; padding: 8px;"
+                                onclick="playAudio('anxiety', this)">Play</button>
+                        </div>
+                        <div
+                            style="background: rgba(26, 45, 71, 0.5); border: 1px solid var(--border); border-radius: 12px; padding: 20px;">
+                            <h4 style="color: var(--accent-purple); margin-bottom: 10px;">Focus & Study</h4>
+                            <p style="font-size: 14px; color: var(--text-dim); margin-bottom: 15px;">12 minutes</p>
+                            <button class="btn btn-secondary" style="width: 100%; padding: 8px;"
+                                onclick="playAudio('focus', this)">Play</button>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <a href="https://insighttimer.com" target="_blank" class="resource-link">Insight Timer (40,000+ Free
+                        Meditations)</a>
+                    <a href="https://www.uclahealth.org/programs/marc/free-guided-meditations" target="_blank"
+                        class="resource-link">UCLA Free Meditations</a>
+                    <a href="https://www.headspace.com/meditation" target="_blank" class="resource-link">Headspace</a>
+                    <a href="https://www.calm.com" target="_blank" class="resource-link">Calm</a>
+                    <a href="https://www.tarabrach.com/guided-meditations/" target="_blank" class="resource-link">Tara
+                        Brach Free Meditations</a>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Progressive Muscle Relaxation</h3>
+                <p class="feature-card-text">
+                    Tense and release muscle groups to reduce physical tension. Takes 15 minutes. Proven to decrease
+                    anxiety symptoms by 30% when practiced daily for 2 weeks.
+                </p>
+                <div class="tool-container">
+                    <div
+                        style="background: rgba(26, 45, 71, 0.5); border: 1px solid var(--border); border-radius: 12px; padding: 30px;">
+                        <h4 style="color: var(--accent-purple); margin-bottom: 20px; text-align: center;">Muscle Groups
+                            to Target</h4>
+                        <ol style="color: var(--text-dim); line-height: 2.2; margin-left: 20px; font-size: 16px;">
+                            <li>Hands and forearms (make a fist)</li>
+                            <li>Upper arms (bend arms, flex biceps)</li>
+                            <li>Shoulders (raise shoulders to ears)</li>
+                            <li>Face (scrunch facial muscles)</li>
+                            <li>Jaw (clench teeth gently)</li>
+                            <li>Neck (press head back into pillow)</li>
+                            <li>Chest (take deep breath, hold)</li>
+                            <li>Stomach (tighten abdominal muscles)</li>
+                            <li>Thighs (tighten thigh muscles)</li>
+                            <li>Calves (point toes toward head)</li>
+                            <li>Feet (curl toes downward)</li>
+                        </ol>
+                        <p style="margin-top: 20px; color: var(--text-dim); text-align: center; font-style: italic;">
+                            Hold each tension for 5 seconds, then release for 15 seconds</p>
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <a href="https://www.anxietycanada.com/articles/calm-breathing-and-relaxation/" target="_blank"
+                        class="resource-link">Anxiety Canada PMR Guide</a>
+                    <a href="https://www.cci.health.wa.gov.au/Resources/Looking-After-Yourself/Relaxation"
+                        target="_blank" class="resource-link">CCI Relaxation Resources</a>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Gratitude Journal</h3>
+                <p class="feature-card-text">
+                    Write three things you are grateful for today. Studies show gratitude journaling for 21 days
+                    increases happiness by 15% and reduces depression symptoms.
+                </p>
+                <div class="tool-container">
+                    <div style="margin-bottom: 15px;">
+                        <label
+                            style="display: block; color: var(--accent-purple); margin-bottom: 10px; font-weight: 600;">Gratitude
+                            Prompt:</label>
+                        <p id="gratitude-prompt"
+                            style="color: var(--text-dim); font-style: italic; font-size: 16px; padding: 15px; background: rgba(155, 107, 204, 0.05); border-radius: 8px;">
+                            "What made you smile today?"</p>
+                        <button class="btn btn-secondary" id="new-prompt"
+                            style="margin-top: 10px; padding: 8px 20px; font-size: 12px;">New Prompt</button>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; color: var(--text-dim); margin-bottom: 8px; font-size: 14px;">1. I
+                            am grateful for:</label>
+                        <input type="text" id="gratitude-1"
+                            style="width: 100%; padding: 12px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px;"
+                            placeholder="A friend who listened to me today">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; color: var(--text-dim); margin-bottom: 8px; font-size: 14px;">2. I
+                            am grateful for:</label>
+                        <input type="text" id="gratitude-2"
+                            style="width: 100%; padding: 12px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px;"
+                            placeholder="The warm coffee this morning">
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; color: var(--text-dim); margin-bottom: 8px; font-size: 14px;">3. I
+                            am grateful for:</label>
+                        <input type="text" id="gratitude-3"
+                            style="width: 100%; padding: 12px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px;"
+                            placeholder="Getting through a tough class">
+                    </div>
+                    <button class="btn btn-primary" id="save-gratitude">Save Entry</button>
+                    <div id="gratitude-status" class="status-message"></div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <a href="https://www.happify.com" target="_blank" class="resource-link">Happify (Science-based
+                        Activities)</a>
+                    <a href="https://www.thnx4.org" target="_blank" class="resource-link">Thnx4 Gratitude App</a>
+                </div>
+            </div>
+        </section>
+        <!-- Section 3: CBT Tools -->
+        <section class="content-section">
+            <div class="section-header">
+                <div class="section-number">03 / CBT Tools</div>
+                <div>
+                    <h2 class="section-title">Cognitive Behavioral Therapy Tools</h2>
+                    <p class="section-description">
+                        Evidence-based CBT techniques for managing anxiety and depression. Thought diary with cognitive
+                        distortion identification. Anxiety hierarchy builder. Worry time scheduler. Self-compassion
+                        exercises.
+                    </p>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Thought Diary</h3>
+                <p class="feature-card-text">
+                    Record negative thoughts and challenge them. Identify cognitive distortions like catastrophizing,
+                    black-and-white thinking, and mind reading. CBT is proven to reduce depression by 50% in 12 weeks.
+                </p>
+                <div class="tool-container">
+                    <div style="margin-bottom: 20px;">
+                        <label
+                            style="display: block; color: var(--text-dim); margin-bottom: 10px; font-size: 14px;">Situation
+                            (What happened?):</label>
+                        <!-- Added ID -->
+                        <textarea id="cbt-situation"
+                            style="width: 100%; padding: 12px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px; min-height: 80px; resize: vertical;"
+                            placeholder="Failed a quiz in chemistry class"></textarea>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <label
+                            style="display: block; color: var(--text-dim); margin-bottom: 10px; font-size: 14px;">Automatic
+                            Thought (What went through your mind?):</label>
+                        <!-- Added ID -->
+                        <textarea id="cbt-thought"
+                            style="width: 100%; padding: 12px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px; min-height: 80px; resize: vertical;"
+                            placeholder="I'm going to fail the entire course. I'm terrible at science."></textarea>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <label
+                            style="display: block; color: var(--text-dim); margin-bottom: 10px; font-size: 14px;">Emotion
+                            (How did you feel?):</label>
+                        <input type="text" id="cbt-emotion"
+                            style="width: 100%; padding: 12px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px;"
+                            placeholder="Anxious, sad, hopeless">
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <label
+                            style="display: block; color: var(--text-dim); margin-bottom: 10px; font-size: 14px;">Cognitive
+                            Distortion (What thinking error?):</label>
+                        <select id="cbt-distortion"
+                            style="width: 100%; padding: 12px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px;">
+                            <option>Select distortion type...</option>
+                            <option>All-or-Nothing Thinking</option>
+                            <option>Overgeneralization</option>
+                            <option>Mental Filter</option>
+                            <option>Discounting the Positive</option>
+                            <option>Jumping to Conclusions</option>
+                            <option>Magnification/Catastrophizing</option>
+                            <option>Emotional Reasoning</option>
+                            <option>Should Statements</option>
+                            <option>Labeling</option>
+                            <option>Personalization</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <label
+                            style="display: block; color: var(--text-dim); margin-bottom: 10px; font-size: 14px;">Balanced
+                            Thought (What's a more realistic view?):</label>
+                        <!-- Added ID -->
+                        <textarea id="cbt-balance"
+                            style="width: 100%; padding: 12px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px; min-height: 100px; resize: vertical;"
+                            placeholder="One quiz doesn't determine my entire grade. I can study harder for the next one. I've passed other science courses before."></textarea>
+                    </div>
+                    <button class="btn btn-primary" id="save-cbt">Save Entry</button>
+                    <div id="cbt-status" class="status-message"></div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <a href="https://cogbtherapy.com/free-online-cbt-workbook" target="_blank"
+                        class="resource-link">Free CBT Workbook</a>
+                    <a href="https://thinkcbt.com/think-cbt-worksheets" target="_blank" class="resource-link">CBT
+                        Worksheets</a>
+                    <a href="https://www.cci.health.wa.gov.au/Resources/Looking-After-Yourself" target="_blank"
+                        class="resource-link">CCI Self-Help Resources</a>
+                    <a href="https://www.getselfhelp.co.uk/freedownloads2.htm" target="_blank" class="resource-link">Get
+                        Self Help (Free CBT)</a>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Anxiety Hierarchy Builder</h3>
+                <p class="feature-card-text">
+                    Create a ladder of feared situations from least to most anxiety-provoking. Used in exposure therapy.
+                    Face fears gradually, starting with easiest situations first.
+                </p>
+                <div class="tool-container">
+                    <div
+                        style="background: rgba(26, 45, 71, 0.5); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 15px;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <span style="font-weight: 600; color: var(--accent-green);">Level 1 (Least Anxiety)</span>
+                            <span
+                                style="font-family: 'Space Mono', monospace; color: var(--accent-green);">10/100</span>
+                        </div>
+                        <!-- Added ID -->
+                        <input type="text" id="hierarchy-1"
+                            style="width: 100%; padding: 10px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px;"
+                            placeholder="Talk to a classmate I know well">
+                    </div>
+                    <div
+                        style="background: rgba(26, 45, 71, 0.5); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 15px;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <span style="font-weight: 600; color: var(--primary);">Level 2</span>
+                            <span style="font-family: 'Space Mono', monospace; color: var(--primary);">30/100</span>
+                        </div>
+                        <!-- Added ID -->
+                        <input type="text" id="hierarchy-2"
+                            style="width: 100%; padding: 10px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px;"
+                            placeholder="Ask a question in a small class">
+                    </div>
+                    <div
+                        style="background: rgba(26, 45, 71, 0.5); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 15px;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <span style="font-weight: 600; color: #fbbf24;">Level 3</span>
+                            <span style="font-family: 'Space Mono', monospace; color: #fbbf24;">50/100</span>
+                        </div>
+                        <!-- Added ID -->
+                        <input type="text" id="hierarchy-3"
+                            style="width: 100%; padding: 10px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px;"
+                            placeholder="Present in front of small group">
+                    </div>
+                    <div
+                        style="background: rgba(26, 45, 71, 0.5); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 15px;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <span style="font-weight: 600; color: var(--accent-warm);">Level 4</span>
+                            <span style="font-family: 'Space Mono', monospace; color: var(--accent-warm);">70/100</span>
+                        </div>
+                        <!-- Added ID -->
+                        <input type="text" id="hierarchy-4"
+                            style="width: 100%; padding: 10px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px;"
+                            placeholder="Give presentation in large lecture">
+                    </div>
+                    <div
+                        style="background: rgba(26, 45, 71, 0.5); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 20px;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <span style="font-weight: 600; color: #ef4444;">Level 5 (Most Anxiety)</span>
+                            <span style="font-family: 'Space Mono', monospace; color: #ef4444;">90/100</span>
+                        </div>
+                        <!-- Added ID -->
+                        <input type="text" id="hierarchy-5"
+                            style="width: 100%; padding: 10px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px;"
+                            placeholder="Lead a group project presentation">
+                    </div>
+                    <button class="btn btn-primary" id="save-hierarchy">Save Hierarchy</button>
+                    <div id="hierarchy-status" class="status-message"></div>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Worry Time Scheduler</h3>
+                <p class="feature-card-text">
+                    Set aside 15 minutes daily for worrying. When anxious thoughts appear outside this time, postpone
+                    them. Reduces rumination by 35% and improves sleep quality.
+                </p>
+                <div class="tool-container">
+                    <div style="text-align: center; margin: 30px 0;">
+                        <label
+                            style="display: block; color: var(--text-dim); margin-bottom: 15px; font-size: 16px;">Schedule
+                            your daily worry time:</label>
+                        <!-- Added ID -->
+                        <input type="time" value="19:00" id="worry-time"
+                            style="padding: 15px 30px; background: var(--bg-dark); border: 2px solid var(--border); border-radius: 8px; color: var(--text); font-size: 20px; font-family: 'Space Mono', monospace;">
+                        <p style="margin-top: 15px; color: var(--text-dim); font-size: 14px;">Duration: 15 minutes</p>
+                    </div>
+                    <button class="btn btn-primary" style="display: block; margin: 20px auto;"
+                        id="set-worry-reminder">Set Reminder</button>
+                    <div id="worry-status" class="status-message" style="margin-top: 10px;"></div>
+                    <button class="btn btn-secondary" id="stop-worry-today" style="margin-top: 10px;">
+                        Stop Today's Reminder
+                    </button>
+                    <button class="btn btn-secondary" id="clear-worry-reminder" style="margin-top: 6px;">
+                        Stop Daily Reminder
+                    </button>
+                    <button class="btn btn-secondary" id="stop-worry-beep" style="margin-top: 2px;">
+                        Stop Beep
+                    </button>
+
+                    <div
+                        style="background: rgba(155, 107, 204, 0.1); border-radius: 8px; padding: 20px; margin-top: 20px;">
+                        <h4 style="color: var(--accent-purple); margin-bottom: 10px;">How to Use Worry Time</h4>
+                        <ol style="color: var(--text-dim); line-height: 1.8; margin-left: 20px;">
+                            <li>When a worry appears, write it down</li>
+                            <li>Tell yourself: "I'll think about this at 7 PM"</li>
+                            <li>Return to what you were doing</li>
+                            <li>At 7 PM, review your worry list</li>
+                            <li>Problem-solve what you can control</li>
+                            <li>Accept what you cannot change</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Self-Compassion Exercise</h3>
+                <p class="feature-card-text">
+                    Treat yourself with the same kindness you would offer a friend. Self-compassion reduces depression
+                    by 40% and increases resilience. Practice daily for best results.
+                </p>
+                <div class="tool-container">
+                    <div style="margin-bottom: 20px;">
+                        <label
+                            style="display: block; color: var(--accent-purple); margin-bottom: 10px; font-weight: 600;">What
+                            are you struggling with right now?</label>
+                        <!-- Added ID -->
+                        <textarea id="sc-struggle"
+                            style="width: 100%; padding: 12px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px; min-height: 100px; resize: vertical;"
+                            placeholder="I feel like I'm not good enough. Everyone else seems to have it together."></textarea>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <label
+                            style="display: block; color: var(--accent-purple); margin-bottom: 10px; font-weight: 600;">What
+                            would you say to a friend in this situation?</label>
+                        <textarea id="sc-friend-words"
+                            style="width: 100%; padding: 12px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px; min-height: 100px; resize: vertical;"
+                            placeholder="You're doing your best. Everyone struggles sometimes. It's okay to not be perfect."></textarea>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <label
+                            style="display: block; color: var(--accent-purple); margin-bottom: 10px; font-weight: 600;">Now
+                            say those same words to yourself:</label>
+                        <!-- Added ID -->
+                        <textarea id="sc-response"
+                            style="width: 100%; padding: 12px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px; min-height: 100px; resize: vertical;"
+                            placeholder="I'm doing my best. I'm allowed to struggle. I am enough."></textarea>
+                    </div>
+                    <button class="btn btn-primary" id="save-self-compassion">Save Reflection</button>
+                    <div id="self-compassion-status" class="status-message"></div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <a href="https://self-compassion.org/category/exercises/" target="_blank" class="resource-link">Dr.
+                        Kristin Neff Exercises</a>
+                    <a href="https://centerformsc.org/resources/" target="_blank" class="resource-link">Center for
+                        Mindful Self-Compassion</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Peer Support Network -->
+        <section class="content-section">
+            <div class="section-header">
+                <div class="section-number">04 / Support</div>
+                <div>
+                    <h2 class="section-title">Peer Support Network</h2>
+                    <p class="section-description">
+                        Connect anonymously with students facing similar challenges. Share coping strategies in
+                        moderated forums. Read hope stories from students who have recovered. You are not alone.
+                    </p>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Anonymous Support Forums</h3>
+                <p class="feature-card-text">
+                    Join moderated discussion groups for anxiety, depression, stress, eating concerns, and more. All
+                    posts are anonymous. Trained moderators watch for safety concerns.
+                </p>
+                <div style="margin-top: 20px;">
+                    <a href="https://www.7cups.com" target="_blank" class="resource-link">7 Cups (Free Emotional
+                        Support)</a>
+                    <a href="https://www.supportiv.com" target="_blank" class="resource-link">Supportiv (Peer Chat
+                        Rooms)</a>
+                    <a href="https://www.therapeer.org" target="_blank" class="resource-link">TheraPeer (Student
+                        Support)</a>
+                    <a href="https://www.ulifeline.org" target="_blank" class="resource-link">ULifeline (College Mental
+                        Health)</a>
+                    <a href="https://www.activeminds.org" target="_blank" class="resource-link">Active Minds (Student
+                        Advocacy)</a>
+                    <a href="https://www.halfofus.com" target="_blank" class="resource-link">Half of Us (Student
+                        Stories)</a>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Hope Stories</h3>
+                <p class="feature-card-text">
+                    Read real stories from students who overcame mental health challenges. Recovery is possible. These
+                    stories show what healing looks like.
+                </p>
+                <div class="tool-container">
+                    <div
+                        style="background: rgba(74, 222, 128, 0.05); border-left: 4px solid var(--accent-green); padding: 20px; margin-bottom: 20px; border-radius: 8px;">
+                        <h4 style="color: var(--accent-green); margin-bottom: 10px;">Sarah, 21 - Anxiety Recovery</h4>
+                        <p style="color: var(--text-dim); line-height: 1.7;">"Two years ago, I couldn't leave my dorm
+                            room. Panic attacks kept me from attending classes. Today, I'm graduating with honors.
+                            Therapy, medication, and peer support saved my life. If you're struggling, please reach out.
+                            It gets better."</p>
+                    </div>
+                    <div
+                        style="background: rgba(74, 222, 128, 0.05); border-left: 4px solid var(--accent-green); padding: 20px; margin-bottom: 20px; border-radius: 8px;">
+                        <h4 style="color: var(--accent-green); margin-bottom: 10px;">Marcus, 19 - Depression Journey
+                        </h4>
+                        <p style="color: var(--text-dim); line-height: 1.7;">"I spent months in bed, barely eating.
+                            Thought I would never feel joy again. CBT and support groups taught me my thoughts aren't
+                            facts. Now I help other students who are struggling. Recovery is not linear, but it is
+                            real."</p>
+                    </div>
+                    <div
+                        style="background: rgba(74, 222, 128, 0.05); border-left: 4px solid var(--accent-green); padding: 20px; border-radius: 8px;">
+                        <h4 style="color: var(--accent-green); margin-bottom: 10px;">Priya, 22 - Stress Management</h4>
+                        <p style="color: var(--text-dim); line-height: 1.7;">"Perfectionism nearly broke me. I learned
+                            to set boundaries, ask for extensions, and prioritize sleep. My grades improved when I
+                            stopped trying to be perfect. Mental health comes first."</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 5: Sleep Optimizer -->
+        <section class="content-section">
+            <div class="section-header">
+                <div class="section-number">05 / Sleep</div>
+                <div>
+                    <h2 class="section-title">Sleep Optimizer</h2>
+                    <p class="section-description">
+                        Calculate optimal bedtime based on sleep cycles. Track sleep quality. Build a wind-down routine.
+                        Blue light filter recommendations. Better sleep improves mood, memory, and academic performance.
+                    </p>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Bedtime Calculator</h3>
+                <p class="feature-card-text">
+                    Sleep in 90-minute cycles. Wake between cycles, not during. Average adult needs 5-6 cycles (7.5-9
+                    hours). Choose a wake time to see optimal bedtimes.
+                </p>
+                <div class="tool-container">
+                    <div style="text-align: center; margin: 30px 0;">
+                        <label style="display: block; color: var(--text-dim); margin-bottom: 15px; font-size: 16px;">I
+                            need to wake up at:</label>
+                        <!-- Added ID -->
+                        <input type="time" value="07:00" id="wake-time"
+                            style="padding: 15px 30px; background: var(--bg-dark); border: 2px solid var(--border); border-radius: 8px; color: var(--text); font-size: 20px; font-family: 'Space Mono', monospace;">
+                        <!-- Added ID -->
+                        <button class="btn btn-primary" style="display: block; margin: 20px auto;"
+                            id="calc-sleep">Calculate Bedtimes</button>
+                    </div>
+                    <!-- Added ID for dynamic results -->
+                    <div id="sleep-results"
+                        style="background: rgba(155, 107, 204, 0.1); border-radius: 12px; padding: 30px;">
+                        <h4 style="color: var(--accent-purple); margin-bottom: 20px; text-align: center;">Optimal
+                            Bedtimes (including 15 min to fall asleep)</h4>
+                        <div style="text-align: center; color: var(--text-dim);">Click Calculate to see results.</div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <a href="https://sleepyti.me" target="_blank" class="resource-link">Sleepyti.me Calculator</a>
+                    <a href="https://www.sleepfoundation.org/sleep-calculator" target="_blank"
+                        class="resource-link">Sleep Foundation Calculator</a>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Daily Routine Builder</h3>
+                <p class="feature-card-text">
+                    Create a consistent daily or pre-bed routine. Start 60-90 minutes before sleep. Signals your brain
+                    that sleep
+                    is coming. Reduces time to fall asleep by 40%.
+                </p>
+                <div class="tool-container">
+                    <!-- Added interactive elements for adding items -->
+                    <div style="display: flex; gap: 10px; margin-bottom: 20px;">
+                        <input type="text" id="new-routine-item" placeholder="Add new routine item..."
+                            style="flex-grow: 1; padding: 12px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: var(--text);">
+                        <button class="btn btn-primary" id="add-routine-item">Add</button>
+                    </div>
+                    <!-- Container for dynamic list -->
+                    <div id="routine-list" style="display: grid; gap: 15px;">
+                        <!-- Items will be injected here by JS -->
+                    </div>
+                    <button class="btn btn-primary" id="save-routine" style="margin-top: 20px;">Save Routine
+                        Status</button>
+                    <div id="routine-status" class="status-message"></div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <a href="https://www.sleepfoundation.org" target="_blank" class="resource-link">Sleep Foundation
+                        Resources</a>
+                    <a href="https://sleepeducation.org" target="_blank" class="resource-link">American Academy of Sleep
+                        Medicine</a>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Blue Light Filter Tools</h3>
+                <p class="feature-card-text">
+                    Blue light from screens suppresses melatonin. Use filters after sunset to protect sleep quality.
+                    Free software adjusts screen color based on time of day.
+                </p>
+                <div style="margin-top: 20px;">
+                    <a href="https://justgetflux.com" target="_blank" class="resource-link">f.lux
+                        (Windows/Mac/Linux)</a>
+                    <a href="https://support.apple.com/en-us/HT207570" target="_blank" class="resource-link">Night Shift
+                        (iPhone/iPad)</a>
+                    <a href="https://support.google.com/pixelphone/answer/7169926" target="_blank"
+                        class="resource-link">Night Light (Android)</a>
+                    <a href="https://chrome.google.com/webstore/detail/night-eye/alncdjedloppbablonallfbkeiknmkdi"
+                        target="_blank" class="resource-link">Night Eye (Browser Extension)</a>
+                </div>
+            </div>
+        </section>
+        <!-- Section 6: Physical Wellness -->
+        <section class="content-section">
+            <div class="section-header">
+                <div class="section-number">06 / Physical</div>
+                <div>
+                    <h2 class="section-title">Physical Wellness</h2>
+                    <p class="section-description">
+                        Desk exercises to combat sitting fatigue. Nutrition basics for students. Workout plans for small
+                        spaces. Physical health and mental health are connected.
+                    </p>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Desk Exercise Guide</h3>
+                <p class="feature-card-text">
+                    Move every hour to prevent stiffness, improve circulation, and boost energy. Takes 5 minutes.
+                    Reduces back pain by 60% and improves focus.
+                </p>
+                <div class="tool-container">
+                    <div style="display: grid; gap: 20px;">
+                        <div
+                            style="background: rgba(26, 45, 71, 0.5); border: 1px solid var(--border); border-radius: 12px; padding: 20px;">
+                            <h4 style="color: var(--accent-purple); margin-bottom: 10px;">Neck Rolls</h4>
+                            <p style="color: var(--text-dim); line-height: 1.7;">Slowly roll your head in a circle. 5
+                                times each direction. Releases tension from looking at screens.</p>
+                        </div>
+                        <div
+                            style="background: rgba(26, 45, 71, 0.5); border: 1px solid var(--border); border-radius: 12px; padding: 20px;">
+                            <h4 style="color: var(--accent-purple); margin-bottom: 10px;">Shoulder Shrugs</h4>
+                            <p style="color: var(--text-dim); line-height: 1.7;">Raise shoulders to ears, hold 5
+                                seconds, release. Repeat 10 times. Relieves shoulder tension.</p>
+                        </div>
+                        <div
+                            style="background: rgba(26, 45, 71, 0.5); border: 1px solid var(--border); border-radius: 12px; padding: 20px;">
+                            <h4 style="color: var(--accent-purple); margin-bottom: 10px;">Seated Spinal Twist</h4>
+                            <p style="color: var(--text-dim); line-height: 1.7;">Sit tall, twist torso to right, hold 15
+                                seconds. Repeat left side. Improves spine mobility.</p>
+                        </div>
+                        <div
+                            style="background: rgba(26, 45, 71, 0.5); border: 1px solid var(--border); border-radius: 12px; padding: 20px;">
+                            <h4 style="color: var(--accent-purple); margin-bottom: 10px;">Wrist Circles</h4>
+                            <p style="color: var(--text-dim); line-height: 1.7;">Rotate wrists 10 times each direction.
+                                Prevents carpal tunnel from typing and writing.</p>
+                        </div>
+                        <div
+                            style="background: rgba(26, 45, 71, 0.5); border: 1px solid var(--border); border-radius: 12px; padding: 20px;">
+                            <h4 style="color: var(--accent-purple); margin-bottom: 10px;">Seated Cat-Cow</h4>
+                            <p style="color: var(--text-dim); line-height: 1.7;">Arch back, then round spine. 10
+                                repetitions. Stretches entire back and improves posture.</p>
+                        </div>
+                        <div
+                            style="background: rgba(26, 45, 71, 0.5); border: 1px solid var(--border); border-radius: 12px; padding: 20px;">
+                            <h4 style="color: var(--accent-purple); margin-bottom: 10px;">Standing Calf Raises</h4>
+                            <p style="color: var(--text-dim); line-height: 1.7;">Rise on toes, hold 2 seconds, lower. 15
+                                repetitions. Improves circulation to legs.</p>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <a href="https://www.youtube.com/results?search_query=desk+exercises" target="_blank"
+                        class="resource-link">Desk Exercise Videos</a>
+                    <a href="https://www.mayoclinic.org/healthy-lifestyle/adult-health/multimedia/stretching/sls-20076525"
+                        target="_blank" class="resource-link">Mayo Clinic Stretching Guide</a>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Student Nutrition Basics</h3>
+                <p class="feature-card-text">
+                    Simple, affordable nutrition tips. Eating well improves mood, energy, focus, and immune function.
+                    Small changes make big differences.
+                </p>
+                <div class="tool-container">
+                    <div style="background: rgba(74, 222, 128, 0.1); border-radius: 12px; padding: 25px;">
+                        <h4 style="color: var(--accent-green); margin-bottom: 15px;">Essential Habits</h4>
+                        <ul style="color: var(--text-dim); line-height: 2; margin-left: 20px;">
+                            <li><strong style="color: var(--text);">Eat breakfast:</strong> Improves focus and memory by
+                                30%</li>
+                            <li><strong style="color: var(--text);">Stay hydrated:</strong> 8 glasses water daily,
+                                dehydration causes fatigue</li>
+                            <li><strong style="color: var(--text);">Protein at every meal:</strong> Eggs, beans, nuts,
+                                yogurt stabilize energy</li>
+                            <li><strong style="color: var(--text);">Limit caffeine:</strong> Max 400mg daily, stop by 2
+                                PM for better sleep</li>
+                            <li><strong style="color: var(--text);">Plan snacks:</strong> Fruit, nuts, hummus prevent
+                                blood sugar crashes</li>
+                            <li><strong style="color: var(--text);">Cook simple meals:</strong> Rice bowls, pasta,
+                                stir-fry cheaper than eating out</li>
+                        </ul>
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <a href="https://www.choosemyplate.gov" target="_blank" class="resource-link">ChooseMyPlate (USDA
+                        Guidelines)</a>
+                    <a href="https://www.eatright.org/food/planning-and-prep/snack-and-meal-ideas/healthy-eating-on-a-budget"
+                        target="_blank" class="resource-link">Eating on a Budget</a>
+                    <a href="https://www.budgetbytes.com" target="_blank" class="resource-link">Budget Bytes (Cheap
+                        Recipes)</a>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Dorm Room Workouts</h3>
+                <p class="feature-card-text">
+                    No gym needed. Bodyweight exercises build strength and reduce anxiety. 20 minutes, 3 times per week
+                    shows results. Exercise is as effective as medication for mild depression.
+                </p>
+                <div class="tool-container">
+                    <h4 style="color: var(--accent-purple); margin-bottom: 20px; text-align: center;">20-Minute Workout
+                        Plan</h4>
+                    <div style="display: grid; gap: 15px;">
+                        <div
+                            style="background: rgba(26, 45, 71, 0.5); border-left: 4px solid var(--accent-purple); padding: 15px; border-radius: 4px;">
+                            <strong style="color: var(--text);">Push-ups:</strong> <span
+                                style="color: var(--text-dim);">3 sets of 10-15 reps</span>
+                        </div>
+                        <div
+                            style="background: rgba(26, 45, 71, 0.5); border-left: 4px solid var(--accent-purple); padding: 15px; border-radius: 4px;">
+                            <strong style="color: var(--text);">Squats:</strong> <span style="color: var(--text-dim);">3
+                                sets of 15-20 reps</span>
+                        </div>
+                        <div
+                            style="background: rgba(26, 45, 71, 0.5); border-left: 4px solid var(--accent-purple); padding: 15px; border-radius: 4px;">
+                            <strong style="color: var(--text);">Plank:</strong> <span style="color: var(--text-dim);">3
+                                sets of 30-60 seconds</span>
+                        </div>
+                        <div
+                            style="background: rgba(26, 45, 71, 0.5); border-left: 4px solid var(--accent-purple); padding: 15px; border-radius: 4px;">
+                            <strong style="color: var(--text);">Lunges:</strong> <span style="color: var(--text-dim);">3
+                                sets of 10 each leg</span>
+                        </div>
+                        <div
+                            style="background: rgba(26, 45, 71, 0.5); border-left: 4px solid var(--accent-purple); padding: 15px; border-radius: 4px;">
+                            <strong style="color: var(--text);">Mountain Climbers:</strong> <span
+                                style="color: var(--text-dim);">3 sets of 20 reps</span>
+                        </div>
+                        <div
+                            style="background: rgba(26, 45, 71, 0.5); border-left: 4px solid var(--accent-purple); padding: 15px; border-radius: 4px;">
+                            <strong style="color: var(--text);">Burpees:</strong> <span
+                                style="color: var(--text-dim);">3 sets of 8-10 reps</span>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <a href="https://www.youtube.com/results?search_query=bodyweight+workout+no+equipment"
+                        target="_blank" class="resource-link">Bodyweight Workout Videos</a>
+                    <a href="https://www.reddit.com/r/bodyweightfitness/" target="_blank"
+                        class="resource-link">r/bodyweightfitness Community</a>
+                    <a href="https://www.darebee.com/workouts.html" target="_blank" class="resource-link">Darebee Free
+                        Workouts</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer Section with Settings -->
+        <section class="content-section" style="padding-bottom: 60px;">
+            <div class="feature-card"
+                style="text-align: center; background: linear-gradient(135deg, rgba(155, 107, 204, 0.1), rgba(50, 184, 198, 0.1)); border: 2px solid var(--accent-purple);">
+                <h3 class="feature-card-title">You Are Not Alone</h3>
+                <p class="feature-card-text" style="max-width: 700px; margin: 0 auto 30px;">
+                    Mental health struggles are common. Half of all college students experience anxiety or depression.
+                    Recovery is possible. Resources are free. Help is available 24/7.
+                </p>
+                <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                    <a href="https://findahelpline.com" target="_blank" class="btn btn-primary"
+                        style="text-decoration: none;">Find Local Help</a>
+                </div>
+                <div style="margin-top: 40px; border-top: 1px solid var(--border); padding-top: 20px;">
+                    <h4 style="color: var(--text-dim); margin-bottom: 15px;">Settings & Data</h4>
+
+                    <!-- NEW: export date dropdown for last 7 logged days -->
+                    <div
+                        style="margin-bottom: 10px; display: flex; flex-direction: column; align-items: center; gap: 6px;">
+                        <label for="export-date-select" style="font-size: 12px; color: var(--text-dim);">
+                            Choose a day to export (last 7 logged days):
+                        </label>
+                        <select id="export-date-select" style="background: rgba(10, 22, 40, 0.9);
+                   border: 1px solid var(--border);
+                   border-radius: 6px;
+                   padding: 6px 10px;
+                   font-size: 12px;
+                   color: var(--text);">
+                            <!-- Options will be filled by JS -->
+                        </select>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; justify-content: center;">
+                        <button id="change-country-btn" class="btn btn-secondary" style="font-size: 12px;">Change
+                            Country</button>
+                        <button id="export-data-btn" class="btn btn-secondary" style="font-size: 12px;">Export Journal
+                            (.txt)</button>
+                    </div>
+
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // --- 1. CUSTOM CURSOR & BG ---
+        const cursor = document.getElementById('cursor');
+        let mouseX = 0, mouseY = 0, cursorX = 0, cursorY = 0;
+        document.addEventListener('mousemove', (e) => { mouseX = e.clientX; mouseY = e.clientY; });
+        function animateCursor() {
+            cursorX += (mouseX - cursorX) * 0.2;
+            cursorY += (mouseY - cursorY) * 0.2;
+            cursor.style.left = cursorX + 'px';
+            cursor.style.top = cursorY + 'px';
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        document.querySelectorAll('a, button, input, select, textarea').forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+        });
+
+        // Background Particles
+        const bgCanvas = document.getElementById('bg-canvas');
+        const bgCtx = bgCanvas.getContext('2d');
+        function resizeBgCanvas() {
+            bgCanvas.width = window.innerWidth;
+            bgCanvas.height = document.documentElement.scrollHeight;
+        }
+        resizeBgCanvas();
+        window.addEventListener('resize', resizeBgCanvas);
+
+        class Particle {
+            constructor() { this.reset(); }
+            reset() {
+                this.x = Math.random() * bgCanvas.width;
+                this.y = Math.random() * bgCanvas.height;
+                this.vx = (Math.random() - 0.5) * 0.3;
+                this.vy = (Math.random() - 0.5) * 0.3;
+                this.radius = Math.random() * 2 + 1;
+                this.opacity = Math.random() * 0.3 + 0.1;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if (this.x < 0 || this.x > bgCanvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > bgCanvas.height) this.vy *= -1;
+            }
+            draw() {
+                bgCtx.beginPath();
+                bgCtx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                bgCtx.fillStyle = `rgba(155, 107, 204, ${this.opacity})`;
+                bgCtx.fill();
+            }
+        }
+        const particles = Array(80).fill().map(() => new Particle());
+        function animateBg() {
+            bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animateBg);
+        }
+        animateBg();
+
+        // --- 2. IMPROVED 3D BREATHING ---
+        const breathCanvas = document.getElementById('breathing-canvas');
+        const breathScene = new THREE.Scene();
+        // Check for Canvas existence before creating Renderer
+        if (breathCanvas) {
+            const breathWidth = breathCanvas.parentElement.offsetWidth;
+            const breathCamera = new THREE.PerspectiveCamera(75, breathWidth / 500, 0.1, 1000);
+            const breathRenderer = new THREE.WebGLRenderer({ canvas: breathCanvas, antialias: true, alpha: true });
+            breathRenderer.setSize(breathWidth, 500);
+            breathRenderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+            const ambLight = new THREE.AmbientLight(0xffffff, 0.6);
+            breathScene.add(ambLight);
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(5, 5, 5);
+            breathScene.add(dirLight);
+
+            const coreGeo = new THREE.SphereGeometry(1, 64, 64);
+            const coreMat = new THREE.MeshPhysicalMaterial({ color: 0x32b8c6, roughness: 0.2, transmission: 0.2, opacity: 0.9, transparent: true });
+            const coreSphere = new THREE.Mesh(coreGeo, coreMat);
+            breathScene.add(coreSphere);
+
+            const haloGeo = new THREE.SphereGeometry(1.2, 32, 32);
+            const haloMat = new THREE.MeshBasicMaterial({ color: 0x9b6bcc, wireframe: true, transparent: true, opacity: 0.3 });
+            const haloSphere = new THREE.Mesh(haloGeo, haloMat);
+            breathScene.add(haloSphere);
+
+            const pGeo = new THREE.BufferGeometry();
+            const pCount = 200;
+            const pPos = new Float32Array(pCount * 3);
+            for (let i = 0; i < pCount * 3; i++) pPos[i] = (Math.random() - 0.5) * 5;
+            pGeo.setAttribute('position', new THREE.BufferAttribute(pPos, 3));
+            const pMat = new THREE.PointsMaterial({ size: 0.03, color: 0xe8f1f5, transparent: true, opacity: 0.6 });
+            const pMesh = new THREE.Points(pGeo, pMat);
+            breathScene.add(pMesh);
+
+            breathCamera.position.z = 4.5;
+
+            let breathingActive = false;
+            let breathPhase = 0;
+            let breathTimer = 4;
+            let breathInterval;
+
+            const phases = [
+                { text: 'Breathe In', scale: 1.8, color: 0x4ade80 },
+                { text: 'Hold', scale: 1.8, color: 0x32b8c6 },
+                { text: 'Breathe Out', scale: 1.0, color: 0x9b6bcc },
+                { text: 'Hold', scale: 1.0, color: 0x2d9fb2 }
+            ];
+
+            const instruction = document.getElementById('breath-instruction');
+            const timerDisplay = document.getElementById('breath-timer');
+            const startBtn = document.getElementById('start-breathing');
+            const stopBtn = document.getElementById('stop-breathing');
+
+            if (startBtn && stopBtn) {
+                startBtn.addEventListener('click', () => {
+                    breathingActive = true;
+                    breathPhase = 0;
+                    breathTimer = 4;
+                    startBtn.style.display = 'none';
+                    stopBtn.style.display = 'inline-block';
+                    if (instruction) instruction.textContent = phases[0].text;
+                    breathInterval = setInterval(() => {
+                        breathTimer--;
+                        if (timerDisplay) timerDisplay.textContent = breathTimer;
+                        if (breathTimer === 0) {
+                            breathPhase = (breathPhase + 1) % 4;
+                            breathTimer = 4;
+                            if (instruction) instruction.textContent = phases[breathPhase].text;
+                        }
+                    }, 1000);
+                });
+
+                stopBtn.addEventListener('click', () => {
+                    breathingActive = false;
+                    clearInterval(breathInterval);
+                    startBtn.style.display = 'inline-block';
+                    stopBtn.style.display = 'none';
+                    if (instruction) instruction.textContent = "Click Start";
+                    if (timerDisplay) timerDisplay.textContent = "4";
+                });
+            }
+
+            function animateBreathing() {
+                requestAnimationFrame(animateBreathing);
+                coreSphere.rotation.y += 0.002;
+                haloSphere.rotation.y -= 0.003;
+                haloSphere.rotation.x += 0.001;
+                pMesh.rotation.y += 0.001;
+
+                if (breathingActive) {
+                    const target = phases[breathPhase].scale;
+                    coreSphere.scale.lerp(new THREE.Vector3(target, target, target), 0.02);
+                    haloSphere.scale.lerp(new THREE.Vector3(target + 0.2, target + 0.2, target + 0.2), 0.02);
+                } else {
+                    coreSphere.scale.lerp(new THREE.Vector3(1, 1, 1), 0.05);
+                    haloSphere.scale.lerp(new THREE.Vector3(1.2, 1.2, 1.2), 0.05);
+                }
+                breathRenderer.render(breathScene, breathCamera);
+            }
+            animateBreathing();
+
+            window.addEventListener('resize', () => {
+                const width = breathCanvas.parentElement.offsetWidth;
+                breathCamera.aspect = width / 500;
+                breathCamera.updateProjectionMatrix();
+                breathRenderer.setSize(width, 500);
+            });
+        }
+
+
+        // --- 3. COUNTRY LOGIC & SETTINGS ---
+        const allCountries = [
+            "Afghanistan", "Albania", "Algeria", "Andorra", "Angola", "Antigua and Barbuda", "Argentina", "Armenia", "Australia", "Austria", "Azerbaijan",
+            "Bahamas", "Bahrain", "Bangladesh", "Barbados", "Belarus", "Belgium", "Benin", "Bhutan", "Bolivia", "Bosnia and Herzegovina", "Botswana", "Brazil", "Brunei", "Bulgaria", "Burkina Faso", "Burundi",
+            "Cabo Verde", "Cambodia", "Cameroon", "Canada", "Central African Republic", "Chad", "Chile", "China", "Colombia", "Comoros", "Congo (Democratic Republic)", "Congo (Republic)", "Costa Rica", "Croatia", "Cuba", "Cyprus", "Czech Republic",
+            "Denmark", "Djibouti", "Dominica", "Dominican Republic",
+            "Ecuador", "Egypt", "El Salvador", "Equatorial Guinea", "Eritrea", "Estonia", "Eswatini", "Ethiopia",
+            "Fiji", "Finland", "France",
+            "Gabon", "Gambia", "Georgia", "Germany", "Ghana", "Greece", "Grenada", "Guatemala", "Guinea", "Guinea-Bissau", "Guyana",
+            "Haiti", "Honduras", "Hungary",
+            "Iceland", "India", "Indonesia", "Iran", "Iraq", "Ireland", "Israel", "Italy", "Ivory Coast",
+            "Jamaica", "Japan", "Jordan",
+            "Kazakhstan", "Kenya", "Kiribati", "Kosovo", "Kuwait", "Kyrgyzstan",
+            "Laos", "Latvia", "Lebanon", "Lesotho", "Liberia", "Libya", "Liechtenstein", "Lithuania", "Luxembourg",
+            "Madagascar", "Malawi", "Malaysia", "Maldives", "Mali", "Malta", "Marshall Islands", "Mauritania", "Mauritius", "Mexico", "Micronesia", "Moldova", "Monaco", "Mongolia", "Montenegro", "Morocco", "Mozambique", "Myanmar",
+            "Namibia", "Nauru", "Nepal", "Netherlands", "New Zealand", "Nicaragua", "Niger", "Nigeria", "North Korea", "North Macedonia", "Norway",
+            "Oman",
+            "Pakistan", "Palau", "Palestine", "Panama", "Papua New Guinea", "Paraguay", "Peru", "Philippines", "Poland", "Portugal",
+            "Qatar",
+            "Romania", "Russia", "Rwanda",
+            "Saint Kitts and Nevis", "Saint Lucia", "Saint Vincent and the Grenadines", "Samoa", "San Marino", "Sao Tome and Principe", "Saudi Arabia", "Senegal", "Serbia", "Seychelles", "Sierra Leone", "Singapore", "Slovakia", "Slovenia", "Solomon Islands", "Somalia", "South Africa", "South Korea", "South Sudan", "Spain", "Sri Lanka", "Sudan", "Suriname", "Sweden", "Switzerland", "Syria",
+            "Taiwan", "Tajikistan", "Tanzania", "Thailand", "Timor-Leste", "Togo", "Tonga", "Trinidad and Tobago", "Tunisia", "Turkey", "Turkmenistan", "Tuvalu",
+            "Uganda", "Ukraine", "United Arab Emirates", "United Kingdom", "United States", "Uruguay", "Uzbekistan",
+            "Vanuatu", "Vatican City", "Venezuela", "Vietnam",
+            "Yemen",
+            "Zambia", "Zimbabwe"
+        ];
+
+        const helplineDB = {
+            "Albania": { num: "116 123", txt: "Call 116 123 (Samaritans)", url: "https://www.samaritans.org", sub: "Emotional support line." },
+            "Algeria": { num: "021 44 24 57", txt: "Call 021 44 24 57", url: "#", sub: "Local Psychiatric Hospital contact." },
+            "Angola": { num: "923 203 238", txt: "Call 923 203 238", url: "#", sub: "Psychological Support Line (Local)." },
+            "Antigua and Barbuda": { num: "462-HELP", txt: "Call 462-HELP", url: "#", sub: "Local mental health clinic." },
+            "Argentina": { num: "135", txt: "Llamá al 135 (CABA)", url: "https://www.casbuenosaires.com.ar", sub: "Centro de Asistencia al Suicida." },
+            "Armenia": { num: "099 217 000", txt: "Call 099 217 000", url: "https://www.shengardz.am", sub: "Shengardz Crisis Center." },
+            "Australia": { num: "13 11 14", txt: "Call 13 11 14 (Lifeline)", url: "https://www.lifeline.org.au", sub: "Crisis support and suicide prevention." },
+            "Austria": { num: "142", txt: "Call 142", url: "https://www.telefonseelsorge.at", sub: "Emergency Pastoral Care." },
+            "Bahamas": { num: "322-2763", txt: "Call 322-2763", url: "#", sub: "Local Crisis Center." },
+            "Bahrain": { num: "8000 8108", txt: "Call 8000 8108", url: "https://www.moh.gov.bh", sub: "National Mental Health Helpline." },
+            "Bangladesh": { num: "01779 810332", txt: "Call 01779 810332", url: "https://www.monerbondhu.org", sub: "Moner Bondhu (Mental Health)." },
+            "Barbados": { num: "429-9999", txt: "Call 429-9999", url: "#", sub: "Samaritans Barbados." },
+            "Belarus": { num: "8-017-202-04-01", txt: "Call 8-017-202-04-01", url: "#", sub: "Minsk Crisis Center." },
+            "Belgium": { num: "1813", txt: "Call 1813", url: "https://www.zelfmoord1813.be", sub: "Suicide Prevention." },
+            "Bhutan": { num: "1717", txt: "Call 1717 (PEMA Helpline)", url: "https://thepema.gov.bt", sub: "National Mental Health Helpline." },
+            "Bolivia": { num: "800 102 100", txt: "Llama al 800 102 100", url: "#", sub: "Línea de Vida (Ministry of Health)." },
+            "Bosnia and Herzegovina": { num: "033 668 558", txt: "Call 033 668 558", url: "#", sub: "Local Mental Health Center." },
+            "Botswana": { num: "3911270", txt: "Call 3911270", url: "#", sub: "Local Psychiatric Hospital." },
+            "Brazil": { num: "188", txt: "Ligue 188 (CVV)", url: "https://www.cvv.org.br", sub: "CVV (Centro de Valorização da Vida) - 24h." },
+            "Brunei": { num: "145", txt: "Call 145", url: "https://www.talihanharapan.gov.bn", sub: "Talian Harapan (24/7)." },
+            "Bulgaria": { num: "116 123", txt: "Call 116 123", url: "#", sub: "Emotional support line." },
+            "Cabo Verde": { num: "131", txt: "Call 131", url: "#", sub: "Local Health Center referral." },
+            "Cambodia": { num: "1280", txt: "Call 1280", url: "https://www.cambodia.unfpa.org", sub: "Mental Health Support Line." },
+            "Cameroon": { num: "119", txt: "Call 119", url: "#", sub: "Emergency/Health Services." },
+            "Canada": { num: "988", txt: "Call or Text 988", url: "https://talksuicide.ca", sub: "Available 24/7 nationwide." },
+            "Chile": { num: "4141", txt: "Llama al 4141", url: "https://www.gob.cl/noticias/lineas-de-ayuda-salud-mental", sub: "Línea de Prevención del Suicidio." },
+            "China": { num: "400-161-9995", txt: "Call 400-161-9995", url: "http://www.crisis.org.cn/crisis-hotline", sub: "Beijing Suicide Research & Prevention Center." },
+            "Colombia": { num: "192", txt: "Llama al 192, opción 4", url: "https://www.minsalud.gov.co", sub: "Salud Mental (National)." },
+            "Congo (Democratic Republic)": { num: "117", txt: "Call 117 (Emergency)", url: "https://blog.opencounseling.com", sub: "Emergency services referral (As per OpenCounseling)." },
+            "Croatia": { num: "01 4833 888", txt: "Call 01 4833 888", url: "https://www.samaritanac.hr", sub: "Samaritanac Crisis Line." },
+            "Cuba": { num: "103", txt: "Llama al 103", url: "#", sub: "Emergency Psychological Assistance." },
+            "Cyprus": { num: "1410", txt: "Call 1410", url: "#", sub: "Mental Health Services." },
+            "Czech Republic": { num: "116 123", txt: "Call 116 123", url: "https://www.linkabezpeci.cz", sub: "Linka bezpečí (24/7)." },
+            "Denmark": { num: "70 201 201", txt: "Call 70 201 201", url: "https://livslinien.dk", sub: "Livslinien - Suicide Prevention." },
+            "Dominican Republic": { num: "809-562-6363", txt: "Llama 809-562-6363", url: "#", sub: "UNAP Crisis Line." },
+            "Ecuador": { num: "171", txt: "Llama al 171, opción 3", url: "https://www.salud.gob.ec", sub: "Línea de Asesoría de Salud Mental." },
+            "Egypt": { num: "0800 888 0700", txt: "Call 0800 888 0700", url: "#", sub: "Ministry of Health (MOH)." },
+            "Estonia": { num: "126", txt: "Call 126 / 127", url: "https://www.palunabi.ee", sub: "Mental health crisis line." },
+            "Eswatini": { num: "+268 2404 3160", txt: "Call +268 2404 3160", url: "https://progress.guide/atlas/africa/eswatini/", sub: "Eswatini Mental Health Association (24/7)." },
+            "Ethiopia": { num: "952", txt: "Call 952", url: "#", sub: "Aba Geda Helpline." },
+            "Fiji": { num: "1325", txt: "Call 1325", url: "https://www.lifeline.org.fj", sub: "Lifeline Fiji." },
+            "Finland": { num: "09 2525 0111", txt: "Call 09 2525 0111", url: "https://mieli.fi", sub: "Mieli Mental Health." },
+            "France": { num: "3114", txt: "Appelez le 3114", url: "https://3114.fr", sub: "Numéro national de prévention du suicide (24/7)." },
+            "Gabon": { num: "130", txt: "Call 130 (Emergency)", url: "#", sub: "Emergency services referral." },
+            "Georgia": { num: "032 299 92 88", txt: "Call 032 299 92 88", url: "#", sub: "Local Crisis Line." },
+            "Germany": { num: "0800 111 0 111", txt: "Call 0800 111 0 111", url: "https://www.telefonseelsorge.de", sub: "Free 24/7 counseling." },
+            "Ghana": { num: "050 000 0000", txt: "Call 050 000 0000", url: "https://www.mentalhealthghana.org", sub: "Ghana Mental Health Authority." },
+            "Greece": { num: "1018", txt: "Call 1018", url: "https://suicide-help.gr", sub: "Suicide Intervention." },
+            "Grenada": { num: "440-9999", txt: "Call 440-9999", url: "#", sub: "Local hospital/health service." },
+            "Guatemala": { num: "1545", txt: "Llama al 1545", url: "https://www.gob.gt/minsalud", sub: "Minsalud Crisis Line." },
+            "Guyana": { num: "+592 223 0001", txt: "Call +592 223 0001", url: "https://health.gov.gy", sub: "Inter-Agency Suicide Prevention Hotline (24/7)." },
+            "Hungary": { num: "116 123", txt: "Call 116 123", url: "https://www.sos116123.hu", sub: "Crisis Line." },
+            "Iceland": { num: "1717", txt: "Call 1717", url: "https://www.raudikrossinn.is", sub: "Rauði krossinn (Red Cross)." },
+            "India": { num: "14416", txt: "Call 14416 (Tele-MANAS)", url: "https://telemanas.mohfw.gov.in", sub: "National Tele-Mental Health service." },
+            "Indonesia": { num: "119", txt: "Call 119 ext. 8", url: "https://www.kemkes.go.id", sub: "Ministry of Health Mental Health." },
+            "Iran": { num: "1480", txt: "Call 1480", url: "#", sub: "National Counseling Line." },
+            "Iraq": { num: "104", txt: "Call 104", url: "#", sub: "Mental Health Support Line." },
+            "Ireland": { num: "116 123", txt: "Call 116 123 (Samaritans)", url: "https://www.samaritans.org/ireland", sub: "Free 24/7 support." },
+            "Israel": { num: "1201", txt: "Call 1201", url: "https://en.eran.org.il", sub: "ERAN Emotional First Aid." },
+            "Italy": { num: "800 334 334", txt: "Call 800 334 334", url: "https://www.telefonoamico.it", sub: "Telefono Amico (24/7)." },
+            "Jamaica": { num: "888-255-5666", txt: "Call 888-255-5666", url: "#", sub: "Mental Health and Suicide Prevention." },
+            "Japan": { num: "0570-064-556", txt: "Call 0570-064-556 (TELL)", url: "https://telljp.com", sub: "TELL Lifeline (Bilingual support)." },
+            "Jordan": { num: "06 500 4545", txt: "Call 06 500 4545", url: "#", sub: "Mental Health Center." },
+            "Kazakhstan": { num: "150", txt: "Call 150", url: "#", sub: "National Trust Line." },
+            "Kenya": { num: "1199", txt: "Call 1199", url: "https://www.redcross.or.ke", sub: "Kenya Red Cross - Counseling." },
+            "Kosovo": { num: "044 123 456", txt: "Call 044 123 456", url: "#", sub: "Local Mental Health Center." },
+            "Kuwait": { num: "94069304", txt: "Call 94069304", url: "#", sub: "Mental Health Support Line." },
+            "Latvia": { num: "116 123", txt: "Call 116 123", url: "#", sub: "Emotional support line." },
+            "Lebanon": { num: "1564", txt: "Call 1564", url: "https://www.embracelebanon.org", sub: "Embrace Lifeline." },
+            "Liechtenstein": { num: "147", txt: "Call 147 (Youth Help)", url: "#", sub: "Pro Juventute (Youth Crisis Line)." },
+            "Lithuania": { num: "1809", txt: "Call 1809", url: "https://www.kriziucentras.lt", sub: "Crisis Management Center." },
+            "Luxembourg": { num: "45 45 45", txt: "Call 45 45 45", url: "https://www.prevention-suicide.lu", sub: "D'Ligne - Suicide Prevention." },
+            "Madagascar": { num: "912", txt: "Call 912 (Emergency)", url: "#", sub: "Emergency services referral." },
+            "Malawi": { num: "6600", txt: "Call/Text 6600", url: "https://www.yoneco.org", sub: "Yoneco/Child & Youth Helpline." },
+            "Malaysia": { num: "15999", txt: "Call 15999 (Talian Kasih)", url: "https://www.befrienders.org.my", sub: "Talian Kasih/Befrienders." },
+            "Maldives": { num: "1414", txt: "Call 1414", url: "#", sub: "National Hotline." },
+            "Malta": { num: "179", txt: "Call 179", url: "#", sub: "Supportline 179." },
+            "Mauritius": { num: "177", txt: "Call 177", url: "https://www.befriendersmauritius.org", sub: "Befrienders Mauritius." },
+            "Mexico": { num: "800 911 2000", txt: "Llamar 800 911 2000", url: "https://www.gob.mx/salud", sub: "Línea de la Vida (National)." },
+            "Moldova": { num: "0800 12345", txt: "Call 0800 12345", url: "https://www.telefonulcopilului.md", sub: "Child/Adolescent Helpline (Mon-Sat, 8am-8pm)." },
+            "Mongolia": { num: "1800-2000", txt: "Call 1800-2000", url: "https://ncmh.gov.mn", sub: "Mental Health Information Line (24/7)." },
+            "Montenegro": { num: "116 111", txt: "Call 116 111", url: "https://www.czrm.me", sub: "National Mental Health Helpline (24/7)." },
+            "Morocco": { num: "08 01 000 041", txt: "Call 08 01 000 041", url: "#", sub: "Health and Psychological Support." },
+            "Myanmar": { num: "+95 9 765 400 200", txt: "Call +95 9 765 400 200", url: "https://redcross.org.mm", sub: "Myanmar Red Cross Society (24/7)." },
+            "Namibia": { num: "264 61 232 222", txt: "Call 264 61 232 222", url: "#", sub: "LifeLine/ChildLine." },
+            "Nepal": { num: "1660 01 20050", txt: "Call 1660 01 20050", url: "https://www.kpscnepal.org", sub: "KPSCN (Suicide Prevention)." },
+            "Netherlands": { num: "0800-0113", txt: "Call 0800-0113", url: "https://www.113.nl", sub: "113 Suicide Prevention (24/7)." },
+            "New Zealand": { num: "1737", txt: "Call/Text 1737", url: "https://1737.org.nz", sub: "Free 24/7 counselling and support." },
+            "Nigeria": { num: "0806 210 6493", txt: "Call 0806 210 6493", url: "https://surpin.org", sub: "Nigeria Suicide Prevention Initiative." },
+            "North Macedonia": { num: "02 3176 055", txt: "Call 02 3176 055", url: "https://www.sos.mk", sub: "SOS Lifeline Macedonia (24/7)." },
+            "Norway": { num: "116 123", txt: "Call 116 123", url: "https://mentalhelse.no", sub: "Mental Health Helpline." },
+            "Oman": { num: "2444 9000", txt: "Call 2444 9000", url: "https://www.moh.gov.om", sub: "MOH Mental Health." },
+            "Pakistan": { num: "042-35761999", txt: "Call 042-35761999", url: "https://www.umang.com.pk", sub: "Umang Mental Health." },
+            "Palestine": { num: "119", txt: "Call 119", url: "#", sub: "Emergency/Health Services." },
+            "Panama": { num: "141", txt: "Llama al 141", url: "#", sub: "Línea de Vida (National)." },
+            "Papua New Guinea": { num: "+675 7150 8000", txt: "Call +675 7150 8000", url: "https://www.lifelinepng.org", sub: "Lifeline PNG (24/7)." },
+            "Paraguay": { num: "141", txt: "Llama al 141", url: "#", sub: "MOH National Hotline." },
+            "Peru": { num: "113", txt: "Llama al 113, opción 5", url: "https://www.gob.pe/minsa", sub: "Minsa Línea de Orientación y Apoyo." },
+            "Philippines": { num: "0917-899-8727", txt: "Call 0917-899-8727 (NCMH)", url: "https://ncmh.gov.ph", sub: "National Center for Mental Health Crisis Hotline." },
+            "Poland": { num: "116 123", txt: "Call 116 123", url: "https://116123.edu.pl", sub: "Crisis helpline." },
+            "Portugal": { num: "21 854 07 40", txt: "Call 21 854 07 40", url: "https://www.sosvozamiga.org", sub: "SOS Voz Amiga." },
+            "Qatar": { num: "16000", txt: "Call 16000", url: "https://www.hamad.qa", sub: "Hamad Mental Health Helpline." },
+            "Romania": { num: "0800 801 000", txt: "Call 0800 801 000", url: "https://www.antisuicid.ro", sub: "Anti-Suicide Alliance." },
+            "Russia": { num: "8-800-333-44-31", txt: "Call 8-800-333-44-31", url: "https://www.telefon-doveria.ru", sub: "Crisis Center Helpline." },
+            "Rwanda": { num: "114", txt: "Call 114 (Mental Health Hotline)", url: "https://www.rbc.gov.rw", sub: "Mental Health Support Line." },
+            "Saint Lucia": { num: "453-0000", txt: "Call 453-0000", url: "#", sub: "Crisis Helpline." },
+            "Samoa": { num: "800-4357", txt: "Call 800-4357", url: "#", sub: "Local Crisis Line." },
+            "Saudi Arabia": { num: "937", txt: "Call 937", url: "https://www.moh.gov.sa", sub: "MOH Health Services (24/7)." },
+            "Senegal": { num: "1515", txt: "Call 1515", url: "#", sub: "SOS Jeunesse." },
+            "Serbia": { num: "0800 309 000", txt: "Call 0800 309 000", url: "#", sub: "Srbija National Line." },
+            "Singapore": { num: "1-767", txt: "Call 1-767", url: "https://www.sos.org.sg", sub: "Samaritans of Singapore (SOS)." },
+            "Slovakia": { num: "0800 800 566", txt: "Call 0800 800 566", url: "https://www.ipcko.sk", sub: "IPčko Crisis Line." },
+            "Slovenia": { num: "116 123", txt: "Call 116 123", url: "#", sub: "Emotional support line." },
+            "South Africa": { num: "0800 567 567", txt: "Call 0800 567 567", url: "https://www.sadag.org", sub: "SA Depression and Anxiety Group (24/7)." },
+            "South Korea": { num: "1393", txt: "Call 1393", url: "https://www.spck.or.kr", sub: "Korea Suicide Prevention Center." },
+            "Spain": { num: "024", txt: "Llama al 024", url: "https://www.sanidad.gob.es", sub: "Línea de atención a la conducta suicida." },
+            "Sri Lanka": { num: "1333", txt: "Call 1333", url: "https://www.sumithrayo.org", sub: "Sumithrayo Crisis Line." },
+            "Sweden": { num: "90101", txt: "Call 90101", url: "https://mind.se", sub: "Mind Suicide Line." },
+            "Switzerland": { num: "143", txt: "Call 143", url: "https://www.143.ch", sub: "La Main Tendue (24/7)." },
+            "Syria": { num: "115", txt: "Call 115", url: "#", sub: "Mental Health Support Line." },
+            "Taiwan": { num: "1925", txt: "Call 1925 (24/7)", url: "https://www.mohw.gov.tw", sub: "Ministry of Health/Suicide Prevention." },
+            "Tanzania": { num: "116", txt: "Call 116 (Child Helpline)", url: "https://www.ccvtanzania.org", sub: "Emotional support & referral." },
+            "Thailand": { num: "1323", txt: "Call 1323", url: "https://www.dmh.go.th", sub: "Mental Health Hotline (24/7)." },
+            "Trinidad and Tobago": { num: "645-2800", txt: "Call 645-2800", url: "https://www.lifelinett.com", sub: "LifeLine Trinidad & Tobago." },
+            "Tunisia": { num: "71 571 000", txt: "Call 71 571 000", url: "#", sub: "Local Psychiatric Hospital." },
+            "Uganda": { num: "0757 888 200", txt: "Call 0757 888 200", url: "https://www.catalystyouthug.org", sub: "Catalyst Youth Helpline." },
+            "Ukraine": { num: "7333", txt: "Call 7333 (24/7)", url: "https://lifelineukraine.com", sub: "Lifeline Ukraine." },
+            "United Arab Emirates": { num: "800 4673", txt: "Call 800 4673", url: "https://www.dha.gov.ae", sub: "DHA Mental Health Helpline." },
+            "United Kingdom": { num: "116 123", txt: "Call 116 123 (Samaritans)", url: "https://www.samaritans.org", sub: "Free 24/7 emotional support." },
+            "United States": { num: "988", txt: "Call or Text 988", url: "https://988lifeline.org", sub: "Available 24/7 across the US." },
+            "Uruguay": { num: "0800 0767", txt: "Llama al 0800 0767", url: "https://www.msp.gub.uy", sub: "MSP Helpline." },
+            "Uzbekistan": { num: "116 123", txt: "Call 116 123", url: "#", sub: "Emotional support line." },
+            "Venezuela": { num: "0212-571-4775", txt: "Llama al 0212-571-4775", url: "#", sub: "SAP Crisis Center." },
+            "Vietnam": { num: "1900 6180", txt: "Call 1900 6180", url: "http://www.tinhthanviet.vn", sub: "PCPGE/Mental Health." },
+            "Zimbabwe": { num: "0772 328 102", txt: "Call 0772 328 102", url: "#", sub: "Friendship Bench (Zimbabwe)." }
+        };
+
+        const countrySelect = document.getElementById('country-select');
+        const modal = document.getElementById('location-modal');
+        const confirmBtn = document.getElementById('confirm-location');
+        const changeCountryBtn = document.getElementById('change-country-btn');
+
+        allCountries.sort().forEach(country => {
+            const option = document.createElement('option');
+            option.value = country;
+            option.textContent = country;
+            if (countrySelect) countrySelect.appendChild(option);
+        });
+
+        function loadCountry() {
+            const savedCountry = localStorage.getItem('userCountry');
+            if (savedCountry) {
+                if (modal) modal.style.display = 'none';
+                applyLocalization(savedCountry);
+            } else {
+                if (modal) modal.style.display = 'flex';
+            }
+        }
+
+        if (confirmBtn) {
+            confirmBtn.addEventListener('click', () => {
+                const selected = countrySelect.value;
+                if (!selected) { showStatus("Please select a country.", "error"); return; }
+                localStorage.setItem('userCountry', selected);
+                if (modal) modal.style.display = 'none';
+                applyLocalization(selected);
+            });
+        }
+
+        // New Change Country Feature
+        if (changeCountryBtn) {
+            changeCountryBtn.addEventListener('click', () => {
+                if (modal) modal.style.display = 'flex';
+                window.scrollTo(0, 0);
+            });
+        }
+
+        function applyLocalization(countryName) {
+            const data = helplineDB[countryName];
+            const bannerTitle = document.getElementById('crisis-title');
+            const bannerDesc = document.getElementById('crisis-desc');
+            const bannerBtn = document.getElementById('crisis-main-btn');
+            const bannerSub = document.getElementById('crisis-subtext');
+            const linkContainer = document.getElementById('resource-link-container');
+
+            if (linkContainer) linkContainer.innerHTML = "";
+
+            if (data) {
+                if (bannerTitle) bannerTitle.textContent = `Crisis Support (${countryName})`;
+                if (bannerBtn) {
+                    bannerBtn.textContent = data.txt;
+                    bannerBtn.href = data.num.includes('Call') ? data.url : `tel:${data.num.replace(/\s/g, '')}`;
+                }
+                if (bannerSub) bannerSub.textContent = data.sub;
+
+                const localLink = document.createElement('a');
+                localLink.href = data.url;
+                localLink.className = "resource-link";
+                localLink.textContent = `${countryName} Mental Health Resources`;
+                localLink.target = "_blank";
+                if (linkContainer) linkContainer.appendChild(localLink);
+            } else {
+                if (bannerTitle) bannerTitle.textContent = `Support in ${countryName}`;
+                if (bannerDesc) bannerDesc.textContent = `While we don't have a specific number for ${countryName} yet, global help is available.`;
+                if (bannerBtn) {
+                    bannerBtn.textContent = "Find Local Help";
+                    bannerBtn.href = "https://findahelpline.com";
+                }
+                if (bannerSub) bannerSub.textContent = "Connecting you to support networks worldwide.";
+            }
+
+            if (linkContainer) {
+                const safetyNet1 = document.createElement('a');
+                safetyNet1.href = "https://findahelpline.com";
+                safetyNet1.className = "resource-link";
+                safetyNet1.textContent = "Find A Helpline (Global Search)";
+                safetyNet1.target = "_blank";
+                linkContainer.appendChild(safetyNet1);
+
+                const safetyNet2 = document.createElement('a');
+                safetyNet2.href = "https://www.befrienders.org";
+                safetyNet2.className = "resource-link";
+                safetyNet2.textContent = "Befrienders Worldwide";
+                safetyNet2.target = "_blank";
+                linkContainer.appendChild(safetyNet2);
+            }
+        }
+
+        // --- 4. MOOD TRACKER (IMPROVED: Aggregation & Insights) ---
+        let moodChartInstance = null;
+        const statusSpan = document.getElementById('mood-status');
+        const moodEntriesContainer = document.getElementById('mood-entries-list');
+
+        // Keep track of hide timers per status element
+        const statusHideTimers = {};
+
+        // Reusable status message helper for the whole page
+        // If targetId is provided, the message appears under that element instead of only under mood.
+        // durationMs (optional) lets you keep a message visible longer (e.g., 5 minutes).
+        function showStatus(msg, type = 'success', targetId, durationMs) {
+            let targetEl = statusSpan;
+
+            if (targetId) {
+                const specific = document.getElementById(targetId);
+                if (specific) {
+                    targetEl = specific;
+                }
+            }
+
+            if (!targetEl) return;
+
+            targetEl.textContent = msg;
+            targetEl.className =
+                'status-message ' + (type === 'success' ? 'status-success' : 'status-error');
+            targetEl.style.opacity = '1';
+
+            const key = targetId || 'default';
+            const ms = typeof durationMs === 'number' ? durationMs : 3000;
+
+            // Clear any previous hide timer for this target
+            if (statusHideTimers[key]) {
+                clearTimeout(statusHideTimers[key]);
+            }
+
+            statusHideTimers[key] = setTimeout(() => {
+                targetEl.style.opacity = '0';
+                delete statusHideTimers[key];
+            }, ms);
+        }
+
+
+
+        // --- 4a. DAILY JOURNAL LOGGING (per-day logs, used for exports) ---
+        const DAILY_LOG_KEY = 'wellnessDailyLogs';
+
+        function getDateKeyForLog(date = new Date()) {
+            try {
+                return date.toISOString().slice(0, 10); // YYYY-MM-DD
+            } catch (e) {
+                return new Date().toISOString().slice(0, 10);
+            }
+        }
+
+        function loadDailyLogs() {
+            try {
+                const raw = localStorage.getItem(DAILY_LOG_KEY);
+                if (!raw) return {};
+                const parsed = JSON.parse(raw);
+                return parsed && typeof parsed === 'object' ? parsed : {};
+            } catch (e) {
+                console.error('Failed to parse daily logs', e);
+                return {};
+            }
+        }
+
+        function saveDailyLogs(logs) {
+            try {
+                localStorage.setItem(DAILY_LOG_KEY, JSON.stringify(logs));
+                // Refresh export dropdown if it exists
+                if (typeof populateExportDateOptions === 'function') {
+                    populateExportDateOptions();
+                }
+            } catch (e) {
+                console.error('Failed to save daily logs', e);
+            }
+        }
+
+        function logDailyEntry(section, payload, dateOverride) {
+            const dateKey = dateOverride || getDateKeyForLog();
+            const logs = loadDailyLogs();
+
+            if (!logs[dateKey]) logs[dateKey] = {};
+            if (!Array.isArray(logs[dateKey][section])) logs[dateKey][section] = [];
+
+            const entryWithMeta = Object.assign(
+                {},
+                payload || {},
+                { timestamp: new Date().toISOString() }
+            );
+
+            logs[dateKey][section].push(entryWithMeta);
+            saveDailyLogs(logs);
+        }
+
+        // Normalize mood data so we can handle both old + new formats safely
+        function normalizeMoodData(raw) {
+            if (!Array.isArray(raw)) return [];
+
+            return raw
+                .map((entry, index) => {
+                    let dateObj = null;
+
+                    // Prefer ISO-style date stored in entry.date
+                    if (entry.date) {
+                        const d = new Date(entry.date);
+                        if (!isNaN(d.getTime())) {
+                            dateObj = d;
+                        }
+                    }
+
+                    // Fallback: sometimes older versions might have used a different field
+                    if (!dateObj && entry.timestamp) {
+                        const d = new Date(entry.timestamp);
+                        if (!isNaN(d.getTime())) {
+                            dateObj = d;
+                        }
+                    }
+
+                    // Display label for chart (what the user sees on X-axis)
+                    let displayLabel = entry.displayDate;
+                    if (!displayLabel && dateObj) {
+                        displayLabel = dateObj.toLocaleDateString('en-US', {
+                            weekday: 'short',
+                            month: 'short',
+                            day: 'numeric'
+                        });
+                    }
+                    if (!displayLabel && typeof entry.date === 'string') {
+                        // Legacy string like "Fri, 21" – still usable as a label
+                        displayLabel = entry.date;
+                    }
+
+                    const score = Number(entry.moodScore);
+                    const note = (entry.note || '').trim();
+
+                    return {
+                        index,
+                        dateObj,
+                        displayLabel,
+                        score: isNaN(score) ? 0 : score,
+                        note
+                    };
+                })
+                .filter(e => e.score > 0 && e.displayLabel);
+        }
+
+        // Render the list of individual mood entries + delete buttons
+        function renderMoodEntriesList() {
+            if (!moodEntriesContainer) return;
+
+            const stored = JSON.parse(localStorage.getItem('moodData') || '[]');
+
+            if (!Array.isArray(stored) || stored.length === 0) {
+                moodEntriesContainer.innerHTML = `
+            <p style="color: var(--text-dim); font-size: 13px;">
+                No entries yet. Add your first mood check-in above.
+            </p>
+        `;
+                return;
+            }
+
+            let html = `
+        <p style="color: var(--text-dim); font-size: 13px; margin-bottom: 10px;">
+            Tip: don’t delete entries unless you made a mistake. Keeping everything helps you see patterns more clearly.
+        </p>
+        <div style="
+            max-height: 220px;
+            overflow-y: auto;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: rgba(10, 22, 40, 0.8);
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        ">
+    `;
+
+            // Reverse so newest entries show at the top
+            const itemsWithIndex = stored.map((entry, index) => ({ entry, index })).reverse();
+
+            itemsWithIndex.forEach(({ entry, index }) => {
+                let when = '';
+
+                if (entry.displayDate) {
+                    when = entry.displayDate;
+                } else if (entry.date) {
+                    const d = new Date(entry.date);
+                    if (!isNaN(d.getTime())) {
+                        when = d.toLocaleString(undefined, {
+                            day: 'numeric',
+                            month: 'short',
+                            hour: 'numeric',
+                            minute: '2-digit'
+                        });
+                    } else {
+                        when = String(entry.date);
+                    }
+                } else {
+                    when = 'Unknown date';
+                }
+
+                const note = (entry.note || '').trim();
+                const shortNote = note
+                    ? (note.length > 80 ? note.slice(0, 80) + '…' : note)
+                    : 'No trigger recorded';
+
+                html += `
+            <div class="routine-item"
+                 style="
+                    padding: 8px 10px;
+                    border-radius: 6px;
+                    background: rgba(26, 45, 71, 0.6);
+                    display: flex;
+                    flex-direction: column;
+                    gap: 4px;
+                 ">
+                <div style="font-size: 13px; color: var(--text-dim);">
+                    <strong style="color: var(--accent-purple);">
+                        Mood ${entry.moodScore}/5
+                    </strong>
+                    <span style="margin-left: 8px;">${when}</span>
+                </div>
+                <div style="font-size: 13px; color: var(--text-dim);">
+                    ${shortNote}
+                </div>
+                <button type="button"
+                        class="btn btn-secondary mood-delete-btn"
+                        data-index="${index}"
+                        style="align-self: flex-start; margin-top: 4px; font-size: 11px; padding: 4px 10px;">
+                    Delete (only if this entry is incorrect)
+                </button>
+            </div>
+        `;
+            });
+
+            html += `</div>`;
+            moodEntriesContainer.innerHTML = html;
+        }
+
+        // Main chart + insights logic
+        function initChart() {
+            const canvas = document.getElementById('mood-chart');
+            if (!canvas) return;
+
+            const ctx = canvas.getContext('2d');
+            const raw = JSON.parse(localStorage.getItem('moodData') || '[]');
+            const normalized = normalizeMoodData(raw);
+            const statsList = document.getElementById('mood-insights');
+
+            if (!normalized.length) {
+                if (statsList) {
+                    statsList.innerHTML = `
+                <li>No data yet. Add your first mood check-in above!</li>
+            `;
+                }
+                if (moodChartInstance) {
+                    moodChartInstance.destroy();
+                    moodChartInstance = null;
+                }
+                renderMoodEntriesList();
+                return;
+            }
+
+            // 1. Group by display label => daily averages
+            const grouped = {};
+            normalized.forEach(entry => {
+                const key = entry.displayLabel;
+                if (!grouped[key]) {
+                    grouped[key] = {
+                        scores: [],
+                        notes: [],
+                        dates: []
+                    };
+                }
+                grouped[key].scores.push(entry.score);
+                if (entry.note) grouped[key].notes.push(entry.note);
+                if (entry.dateObj) grouped[key].dates.push(entry.dateObj);
+            });
+
+            const dayEntries = Object.keys(grouped).map(label => {
+                const data = grouped[label];
+                const avg = data.scores.reduce((a, b) => a + b, 0) / data.scores.length;
+                let dateObj = null;
+                if (data.dates.length) {
+                    dateObj = data.dates.reduce((min, d) => (!min || d < min ? d : min), null);
+                }
+                return {
+                    label,
+                    avg: Number(avg.toFixed(1)),
+                    dateObj,
+                    notes: data.notes
+                };
+            });
+
+            // Sort chronologically when possible
+            dayEntries.sort((a, b) => {
+                if (a.dateObj && b.dateObj) return a.dateObj - b.dateObj;
+                if (a.dateObj && !b.dateObj) return -1;
+                if (!a.dateObj && b.dateObj) return 1;
+                return 0;
+            });
+
+            const now = new Date();
+            const thirtyDaysAgo = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 30);
+
+            // Keep last 30 days where we know the date; older legacy strings still show
+            const filteredEntries = dayEntries.filter(e => {
+                if (!e.dateObj) return true; // show legacy entries anyway
+                return e.dateObj >= thirtyDaysAgo;
+            });
+
+            const labels = filteredEntries.map(e => e.label);
+            const avgScores = filteredEntries.map(e => e.avg);
+
+            const triggerMap = {};
+            filteredEntries.forEach(e => {
+                triggerMap[e.label] = e.notes;
+            });
+
+            // 2. Insights: best weekday, best day, entries today/yesterday, totals
+            if (statsList) {
+                const dayTotals = {};
+                const dayCounts = {};
+                const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+                normalized.forEach(entry => {
+                    if (!entry.dateObj) return;
+                    if (entry.dateObj < thirtyDaysAgo) return;
+                    const idx = entry.dateObj.getDay();
+                    const name = dayNames[idx];
+                    if (!dayTotals[name]) {
+                        dayTotals[name] = 0;
+                        dayCounts[name] = 0;
+                    }
+                    dayTotals[name] += entry.score;
+                    dayCounts[name] += 1;
+                });
+
+                let bestWeekday = 'N/A';
+                let bestWeekdayAvg = 0;
+                Object.keys(dayTotals).forEach(name => {
+                    const avg = dayTotals[name] / dayCounts[name];
+                    if (avg > bestWeekdayAvg) {
+                        bestWeekdayAvg = avg;
+                        bestWeekday = name;
+                    }
+                });
+
+                const dateTotals = {};
+                const dateCounts = {};
+                const dateLabels = {};
+
+                normalized.forEach(entry => {
+                    if (!entry.dateObj) return;
+                    if (entry.dateObj < thirtyDaysAgo) return;
+                    const key = entry.dateObj.toISOString().slice(0, 10); // YYYY-MM-DD
+                    if (!dateTotals[key]) {
+                        dateTotals[key] = 0;
+                        dateCounts[key] = 0;
+                        dateLabels[key] = entry.dateObj.toLocaleDateString('en-US', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric'
+                        });
+                    }
+                    dateTotals[key] += entry.score;
+                    dateCounts[key] += 1;
+                });
+
+                let bestDateKey = null;
+                let bestDateAvg = 0;
+                Object.keys(dateTotals).forEach(key => {
+                    const avg = dateTotals[key] / dateCounts[key];
+                    if (avg > bestDateAvg) {
+                        bestDateAvg = avg;
+                        bestDateKey = key;
+                    }
+                });
+
+                let bestDateLabel = 'N/A';
+                let bestDateCount = 0;
+                if (bestDateKey) {
+                    bestDateLabel = dateLabels[bestDateKey];
+                    bestDateCount = dateCounts[bestDateKey];
+                }
+
+                let todayCount = 0;
+                let yesterdayCount = 0;
+                const todayStr = new Date().toDateString();
+                const yDate = new Date();
+                yDate.setDate(yDate.getDate() - 1);
+                const yesterdayStr = yDate.toDateString();
+
+                normalized.forEach(entry => {
+                    if (!entry.dateObj) return;
+                    const key = entry.dateObj.toDateString();
+                    if (key === todayStr) todayCount++;
+                    if (key === yesterdayStr) yesterdayCount++;
+                });
+
+                const totalEntries = normalized.length;
+                const overallAvg =
+                    normalized.reduce((sum, e) => sum + e.score, 0) / (totalEntries || 1);
+
+                statsList.innerHTML = `
+            <li><strong>Best Day of Week:</strong>
+                ${bestWeekday !== 'N/A'
+                        ? `${bestWeekday} (avg ${bestWeekdayAvg.toFixed(1)}/5)`
+                        : 'Not enough data yet'}
+            </li>
+            <li><strong>Best Day (last 30 days):</strong>
+                ${bestDateKey
+                        ? `${bestDateLabel} (avg ${bestDateAvg.toFixed(1)}/5, ${bestDateCount} entries)`
+                        : 'Not enough data yet'}
+            </li>
+            <li><strong>Entries:</strong> Today: ${todayCount} | Yesterday: ${yesterdayCount}</li>
+            <li><strong>Total Entries (all time):</strong>
+                ${totalEntries} (overall avg ${overallAvg.toFixed(1)}/5)
+            </li>
+        `;
+            }
+
+            // 3. Build / update the chart
+            if (moodChartInstance) {
+                moodChartInstance.destroy();
+            }
+
+            moodChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels.length ? labels : ['No data'],
+                    datasets: [{
+                        label: 'Average daily mood',
+                        data: avgScores.length ? avgScores : [3],
+                        borderColor: '#9b6bcc',
+                        backgroundColor: 'rgba(155, 107, 204, 0.1)',
+                        tension: 0.4,
+                        fill: true,
+                        pointRadius: 4,
+                        pointHoverRadius: 7,
+                        pointHitRadius: 12
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            labels: { color: '#e8f1f5' }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                afterLabel: function (context) {
+                                    const label = context.label;
+                                    const notes = triggerMap[label];
+                                    if (notes && notes.length) {
+                                        return 'Notes: ' + notes.join('; ');
+                                    }
+                                    return 'No notes recorded.';
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            min: 0,
+                            max: 5,
+                            ticks: {
+                                color: '#a7b8c4',
+                                stepSize: 1
+                            },
+                            grid: {
+                                color: 'rgba(50, 184, 198, 0.1)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                color: '#a7b8c4'
+                            },
+                            grid: {
+                                color: 'rgba(50, 184, 198, 0.1)'
+                            }
+                        }
+                    }
+                }
+            });
+
+            // 4. Update the raw list
+            renderMoodEntriesList();
+        }
+
+        // Delete entry via event delegation
+        if (moodEntriesContainer) {
+            moodEntriesContainer.addEventListener('click', function (event) {
+                const target = event.target;
+                if (!target.classList.contains('mood-delete-btn')) return;
+
+                const index = parseInt(target.getAttribute('data-index'), 10);
+                if (isNaN(index)) return;
+
+                const stored = JSON.parse(localStorage.getItem('moodData') || '[]');
+                if (!Array.isArray(stored) || index < 0 || index >= stored.length) return;
+
+                stored.splice(index, 1);
+                localStorage.setItem('moodData', JSON.stringify(stored));
+                showStatus("Mood entry deleted.", "success");
+                initChart();
+                renderMoodEntriesList();
+            });
+        }
+
+        // Mood selector + save button
+        const moodButtons = document.querySelectorAll('.mood-btn');
+        let selectedMoodScore = null;
+
+        moodButtons.forEach(btn => {
+            btn.addEventListener('click', function () {
+                moodButtons.forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                selectedMoodScore = parseInt(this.dataset.mood, 10);
+            });
+        });
+
+        const saveMoodBtn = document.getElementById('save-mood');
+        if (saveMoodBtn) {
+            saveMoodBtn.addEventListener('click', function () {
+                if (!selectedMoodScore) {
+                    showStatus("Please select a mood face first.", "error");
+                    return;
+                }
+
+                const note = document.getElementById('mood-notes').value;
+                const now = new Date();
+
+                const entry = {
+                    date: now.toISOString(), // canonical date for parsing
+                    displayDate: now.toLocaleDateString('en-US', {
+                        weekday: 'short',
+                        month: 'short',
+                        day: 'numeric'
+                    }),
+                    moodScore: selectedMoodScore,
+                    note: note
+                };
+
+                const currentData = JSON.parse(localStorage.getItem('moodData') || '[]');
+                currentData.push(entry);
+                localStorage.setItem('moodData', JSON.stringify(currentData));
+
+                // Per-day journal log for exports (supports multiple entries per day)
+                if (typeof logDailyEntry === 'function') {
+                    logDailyEntry('mood', {
+                        moodScore: selectedMoodScore,
+                        note: note || '',
+                        originalDate: entry.date
+                    }, getDateKeyForLog(now));
+                }
+
+                showStatus("Mood checked-in successfully.", "success");
+
+                // Cleanup UI
+                document.getElementById('mood-notes').value = "";
+                moodButtons.forEach(b => b.classList.remove('active'));
+                selectedMoodScore = null;
+
+                initChart();
+            });
+        }
+
+        // --- 5. EXPORT DATA FEATURE (per-day journal, 7-day history) ---
+        function getLastLoggedDatesForExport(limit = 7) {
+            const logs = loadDailyLogs();
+            const keys = Object.keys(logs).sort().reverse(); // newest first
+            return keys.slice(0, limit);
+        }
+
+        function populateExportDateOptions() {
+            const select = document.getElementById('export-date-select');
+            if (!select) return;
+
+            const allLogged = getLastLoggedDatesForExport(7);
+            select.innerHTML = '';
+
+            const todayKey = getDateKeyForLog();
+            const todayObj = new Date(todayKey + 'T00:00:00');
+
+            if (!allLogged.length) {
+                // No logs yet – show today as a disabled-ish placeholder
+                const opt = document.createElement('option');
+                opt.value = todayKey;
+                opt.textContent = "Today (no entries yet)";
+                select.appendChild(opt);
+                return;
+            }
+
+            allLogged.forEach(key => {
+                const d = new Date(key + 'T00:00:00');
+                const diffDays = Math.round(
+                    (todayObj.getTime() - d.getTime()) / (1000 * 60 * 60 * 24)
+                );
+
+                let label;
+                if (diffDays === 0) {
+                    label = `Today – ${d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}`;
+                } else if (diffDays === 1) {
+                    label = `Yesterday – ${d.toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}`;
+                } else {
+                    label = d.toLocaleDateString(undefined, {
+                        weekday: 'short',
+                        day: 'numeric',
+                        month: 'short',
+                        year: 'numeric'
+                    });
+                }
+
+                const opt = document.createElement('option');
+                opt.value = key;
+                opt.textContent = label;
+                select.appendChild(opt);
+            });
+        }
+
+        const exportDataBtn = document.getElementById('export-data-btn');
+        if (exportDataBtn) {
+            exportDataBtn.addEventListener('click', () => {
+                const dateSelect = document.getElementById('export-date-select');
+                const selectedKey = dateSelect && dateSelect.value
+                    ? dateSelect.value
+                    : getDateKeyForLog();
+
+                const logs = loadDailyLogs();
+                const dayLog = logs[selectedKey] || {};
+
+                // Fallbacks for legacy data (before dailyLogs existed)
+                const moodData = JSON.parse(localStorage.getItem('moodData') || '[]');
+                const cbtData = JSON.parse(localStorage.getItem('cbtLog') || '[]');
+                const gratitudeRaw = JSON.parse(localStorage.getItem('lastGratitude') || '{}');
+                const selfCompRaw = JSON.parse(localStorage.getItem('selfCompassion') || '{}');
+                const routineRaw = JSON.parse(localStorage.getItem('dailyRoutine') || '[]');
+
+                const moodEntries = Array.isArray(dayLog.mood) && dayLog.mood.length
+                    ? dayLog.mood
+                    : moodData
+                        .filter(entry => entry.date && entry.date.slice(0, 10) === selectedKey)
+                        .map(entry => ({
+                            moodScore: entry.moodScore,
+                            note: entry.note || '',
+                            timestamp: entry.date
+                        }));
+
+                const cbtEntries = Array.isArray(dayLog.cbt) && dayLog.cbt.length
+                    ? dayLog.cbt
+                    : cbtData
+                        .filter(entry => entry.date && new Date(entry.date).toISOString().slice(0, 10) === selectedKey)
+                        .map(entry => ({
+                            s: entry.s,
+                            t: entry.t,
+                            b: entry.b || '',
+                            timestamp: entry.date
+                        }));
+
+                let gratitudeEntries = Array.isArray(dayLog.gratitude) ? dayLog.gratitude : [];
+                if (!gratitudeEntries.length && gratitudeRaw && gratitudeRaw.date && gratitudeRaw.entries) {
+                    try {
+                        const key = new Date(gratitudeRaw.date).toISOString().slice(0, 10);
+                        if (key === selectedKey) {
+                            gratitudeEntries = [{
+                                entries: gratitudeRaw.entries,
+                                timestamp: gratitudeRaw.date
+                            }];
+                        }
+                    } catch (e) {
+                        // ignore parse errors
+                    }
+                }
+
+                const hierarchyEntries = Array.isArray(dayLog.hierarchy) ? dayLog.hierarchy : [];
+
+                let selfCompEntries = Array.isArray(dayLog.selfCompassion) ? dayLog.selfCompassion : [];
+                if (!selfCompEntries.length && selfCompRaw && selfCompRaw.date && (selfCompRaw.s || selfCompRaw.r)) {
+                    try {
+                        const key = new Date(selfCompRaw.date).toISOString().slice(0, 10);
+                        if (key === selectedKey) {
+                            selfCompEntries = [{
+                                s: selfCompRaw.s || '',
+                                r: selfCompRaw.r || '',
+                                f: selfCompRaw.f || '',
+                                timestamp: selfCompRaw.date
+                            }];
+                        }
+                    } catch (e) {
+                        // ignore
+                    }
+                }
+
+                const routineSnapshots = Array.isArray(dayLog.routine) ? dayLog.routine : [];
+
+                const hasAnyEntries =
+                    (moodEntries && moodEntries.length) ||
+                    (cbtEntries && cbtEntries.length) ||
+                    (gratitudeEntries && gratitudeEntries.length) ||
+                    (hierarchyEntries && hierarchyEntries.length) ||
+                    (selfCompEntries && selfCompEntries.length) ||
+                    (routineSnapshots && routineSnapshots.length);
+
+                if (!hasAnyEntries) {
+                    showStatus("No saved entries found for that date yet.", "error", "self-compassion-status");
+                    return;
+                }
+
+                const text = buildDayExportText(selectedKey, {
+                    moodEntries,
+                    cbtEntries,
+                    gratitudeEntries,
+                    hierarchyEntries,
+                    selfCompEntries,
+                    routineSnapshots
+                });
+
+                const blob = new Blob([text], { type: "text/plain" });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement("a");
+                a.href = url;
+                a.download = `wellness_journal_${selectedKey}.txt`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                showStatus("Your journal text file has been downloaded.", "success", "self-compassion-status");
+            });
+        }
+
+        function buildDayExportText(dateKey, sections) {
+            const dateObj = new Date(dateKey + 'T00:00:00');
+            const prettyDate = dateObj.toLocaleDateString(undefined, {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+
+            let text = "";
+            text += "====================================================\n";
+            text += "                WELLNESS SANCTUARY JOURNAL          \n";
+            text += "====================================================\n";
+            text += `Day: ${prettyDate}\n`;
+            text += `Exported at: ${new Date().toLocaleString()}\n`;
+            text += "\n";
+
+            const {
+                moodEntries,
+                cbtEntries,
+                gratitudeEntries,
+                hierarchyEntries,
+                selfCompEntries,
+                routineSnapshots
+            } = sections;
+
+            if (moodEntries && moodEntries.length) {
+                text += "----------------------- MOOD CHECK-INS -----------------------\n";
+                moodEntries.forEach((entry, index) => {
+                    const when = entry.timestamp
+                        ? new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        : `Entry ${index + 1}`;
+                    text += `#${index + 1}  [${when}]  Mood: ${entry.moodScore}/5\n`;
+                    if (entry.note) {
+                        text += `    Trigger / Notes: ${entry.note}\n`;
+                    }
+                });
+                text += "\n";
+            }
+
+            if (gratitudeEntries && gratitudeEntries.length) {
+                text += "----------------------- GRATITUDE JOURNAL ---------------------\n";
+                gratitudeEntries.forEach((entry, index) => {
+                    const when = entry.timestamp
+                        ? new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        : `Entry ${index + 1}`;
+                    text += `#${index + 1}  [${when}]\n`;
+                    (entry.entries || []).forEach((item, i) => {
+                        if (item && item.trim()) {
+                            text += `    ${i + 1}. ${item.trim()}\n`;
+                        }
+                    });
+                });
+                text += "\n";
+            }
+
+            if (cbtEntries && cbtEntries.length) {
+                text += "--------------------- THOUGHT EXERCISES (CBT) -----------------\n";
+                cbtEntries.forEach((entry, index) => {
+                    const when = entry.timestamp
+                        ? new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        : `Entry ${index + 1}`;
+                    text += `#${index + 1}  [${when}]\n`;
+                    if (entry.s) text += `    Situation: ${entry.s}\n`;
+                    if (entry.t) text += `    Thought: ${entry.t}\n`;
+                    if (entry.b) text += `    Balanced response: ${entry.b}\n`;
+                    text += "\n";
+                });
+            }
+
+            if (hierarchyEntries && hierarchyEntries.length) {
+                text += "-------------------- ANXIETY HIERARCHY (if used) --------------\n";
+                hierarchyEntries.forEach((entry, index) => {
+                    const when = entry.timestamp
+                        ? new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        : `Entry ${index + 1}`;
+                    text += `#${index + 1}  [${when}]\n`;
+                    const steps = [entry.h1, entry.h2, entry.h3, entry.h4, entry.h5];
+                    steps.forEach((step, i) => {
+                        if (step && step.trim()) {
+                            text += `    Level ${i + 1}: ${step.trim()}\n`;
+                        }
+                    });
+                    text += "\n";
+                });
+            }
+
+            if (selfCompEntries && selfCompEntries.length) {
+                text += "-------------------- SELF-COMPASSION EXERCISES ----------------\n";
+                selfCompEntries.forEach((entry, index) => {
+                    const when = entry.timestamp
+                        ? new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+                        : `Entry ${index + 1}`;
+                    text += `#${index + 1}  [${when}]\n`;
+                    if (entry.s) text += `    Struggle: ${entry.s}\n`;
+                    if (entry.r) text += `    Compassionate response: ${entry.r}\n`;
+                    if (entry.f) text += `    What a kind friend might say: ${entry.f}\n`;
+                    text += "\n";
+                });
+            }
+
+            if (routineSnapshots && routineSnapshots.length) {
+                const latest = routineSnapshots[routineSnapshots.length - 1];
+                const items = latest.items || [];
+                if (items.length) {
+                    text += "------------------------ DAILY ROUTINE -------------------------\n";
+                    items.forEach((item, index) => {
+                        const status = item.done ? "✓" : "•";
+                        text += ` ${status} ${index + 1}. ${item.text}\n`;
+                    });
+                    text += "\n";
+                }
+            }
+
+            text += "---------------------------------------------------------------\n";
+            text += " End of today's journal. Thank you for taking care of yourself.\n";
+            text += "---------------------------------------------------------------\n";
+
+            return text;
+        }
+
+
+        // --- 6. MEDITATION AUDIO ---
+        let currentAudio = null;
+        let currentBtn = null;
+
+        window.playAudio = function (type, btnElement) {
+            const audioEl = document.getElementById(`audio-${type}`);
+            if (!audioEl) {
+                showStatus("Audio file not found! Meditation audio must be loaded from your environment.", "error");
+                return;
+            }
+
+            // Toggle logic
+            if (currentAudio && currentAudio !== audioEl) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                if (currentBtn) currentBtn.textContent = "Play";
+            }
+
+            if (audioEl.paused) {
+                // Play
+                const playPromise = audioEl.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(_ => {
+                        btnElement.textContent = "Pause";
+                        currentAudio = audioEl;
+                        currentBtn = btnElement;
+                    })
+                        .catch(error => {
+                            showStatus("Failed to play audio. Check browser media settings.", "error");
+                            console.error("Audio play error:", error);
+                        });
+                }
+            } else {
+                // Pause
+                audioEl.pause();
+                btnElement.textContent = "Play";
+            }
+        };
+
+        // --- 7. ROUTINE LOGIC (FIXED) ---
+        function getRoutineFromStorage() {
+            try {
+                const raw = localStorage.getItem('dailyRoutine');
+                if (!raw) return [];
+                const parsed = JSON.parse(raw);
+
+                // New format: array of { id, text, done }
+                if (Array.isArray(parsed)) return parsed;
+
+                // Backwards compatibility: old { morning, afternoon, evening }
+                if (parsed && typeof parsed === 'object') {
+                    const converted = [];
+                    ['morning', 'afternoon', 'evening'].forEach(key => {
+                        if (parsed[key]) {
+                            converted.push({
+                                id: Date.now().toString() + '-' + key,
+                                text: parsed[key],
+                                done: false
+                            });
+                        }
+                    });
+                    localStorage.setItem('dailyRoutine', JSON.stringify(converted));
+                    return converted;
+                }
+            } catch (e) {
+                console.error('Error parsing dailyRoutine from storage', e);
+            }
+            return [];
+        }
+
+        function saveRoutineToStorage(list) {
+            localStorage.setItem('dailyRoutine', JSON.stringify(list));
+        }
+
+        function renderRoutine() {
+            const listEl = document.getElementById('routine-list');
+            if (!listEl) return;
+
+            const items = getRoutineFromStorage();
+
+            if (!items.length) {
+                listEl.innerHTML = `
+            <p style="color: var(--text-dim); font-size: 13px;">
+                No routine items yet. Add something using the box above.
+            </p>
+        `;
+                return;
+            }
+
+            let html = '';
+            items.forEach(item => {
+                const checkedAttr = item.done ? 'checked' : '';
+                const textStyle = item.done
+                    ? 'text-decoration: line-through; opacity: 0.7;'
+                    : '';
+
+                html += `
+            <div class="routine-item"
+                 data-id="${item.id}"
+                 style="
+                    display: flex;
+                    align-items: center;
+                    justify-content: space-between;
+                    gap: 10px;
+                    padding: 8px 10px;
+                    border-radius: 6px;
+                    background: rgba(26, 45, 71, 0.5);
+                 ">
+                <label style="display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-dim);">
+                    <input type="checkbox" class="routine-toggle" ${checkedAttr} />
+                    <span style="${textStyle}">${item.text}</span>
+                </label>
+                <button type="button"
+                        class="btn btn-secondary routine-delete-btn"
+                        style="font-size: 11px; padding: 4px 10px;">
+                    Delete
+                </button>
+            </div>
+        `;
+            });
+
+            listEl.innerHTML = html;
+        }
+
+        const routineListEl = document.getElementById('routine-list');
+        const newRoutineInput = document.getElementById('new-routine-item');
+        const addRoutineBtn = document.getElementById('add-routine-item');
+        const saveRoutineBtn = document.getElementById('save-routine');
+
+        if (addRoutineBtn && newRoutineInput) {
+            addRoutineBtn.addEventListener('click', () => {
+                const text = newRoutineInput.value.trim();
+                if (!text) {
+                    showStatus("Type a routine step before adding.", "error", "routine-status");
+                    return;
+                }
+
+                const items = getRoutineFromStorage();
+                items.push({
+                    id: Date.now().toString(16) + Math.random().toString(16),
+                    text,
+                    done: false
+                });
+                saveRoutineToStorage(items);
+                newRoutineInput.value = '';
+                renderRoutine();
+                showStatus("Routine step added.", "success", "routine-status");
+            });
+
+            newRoutineInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    addRoutineBtn.click();
+                }
+            });
+        }
+
+        if (routineListEl) {
+            // Toggle done / not done
+            routineListEl.addEventListener('change', (event) => {
+                if (!event.target.classList.contains('routine-toggle')) return;
+                const wrapper = event.target.closest('.routine-item');
+                if (!wrapper) return;
+
+                const id = wrapper.getAttribute('data-id');
+                const items = getRoutineFromStorage();
+                const updated = items.map(item =>
+                    item.id === id ? { ...item, done: event.target.checked } : item
+                );
+                saveRoutineToStorage(updated);
+                renderRoutine();
+            });
+
+            // Delete step
+            routineListEl.addEventListener('click', (event) => {
+                if (!event.target.classList.contains('routine-delete-btn')) return;
+                const wrapper = event.target.closest('.routine-item');
+                if (!wrapper) return;
+
+                const id = wrapper.getAttribute('data-id');
+                let items = getRoutineFromStorage();
+                items = items.filter(item => item.id !== id);
+                saveRoutineToStorage(items);
+                renderRoutine();
+                showStatus("Routine step deleted.", "success", "routine-status");
+            });
+        }
+
+        if (saveRoutineBtn) {
+            saveRoutineBtn.addEventListener('click', () => {
+                const items = getRoutineFromStorage();
+                if (!items.length) {
+                    showStatus("Add at least one routine step first.", "error", "routine-status");
+                    return;
+                }
+                saveRoutineToStorage(items);
+
+                // Log snapshot of today's routine for export
+                if (typeof logDailyEntry === 'function') {
+                    logDailyEntry('routine', {
+                        items: items.map(item => ({
+                            id: item.id,
+                            text: item.text,
+                            done: item.done
+                        }))
+                    });
+                }
+
+                showStatus("Routine status saved.", "success", "routine-status");
+            });
+        }
+
+        // --- 8. Standard Tools (Gratitude, CBT, Routine) - FIXED ALERTS ---
+        const saveGratitudeBtn = document.getElementById('save-gratitude');
+        if (saveGratitudeBtn) {
+            saveGratitudeBtn.addEventListener('click', () => {
+                const g1 = document.getElementById('gratitude-1').value.trim();
+                const g2 = document.getElementById('gratitude-2').value.trim();
+                const g3 = document.getElementById('gratitude-3').value.trim();
+
+                if (g1 || g2 || g3) {
+                    const now = new Date();
+                    const entries = [g1, g2, g3];
+
+                    localStorage.setItem(
+                        'lastGratitude',
+                        JSON.stringify({ date: now, entries })
+                    );
+
+                    if (typeof logDailyEntry === 'function') {
+                        logDailyEntry('gratitude', {
+                            entries,
+                            originalDate: now.toISOString()
+                        });
+                    }
+
+                    showStatus("Gratitude entry saved!", "success", "gratitude-status");
+
+                } else {
+                    showStatus("Please enter at least one thing you are grateful for.", "error", "gratitude-status");
+                }
+            });
+        }
+
+        // Gratitude random prompts
+        const gratitudePrompts = [
+            "What made you smile today?",
+            "Who is someone you feel grateful for, and why?",
+            "What is one small thing today that you would miss if it disappeared?",
+            "What is something about your body that you are thankful for?",
+            "What opportunity do you have now that your past self wished for?",
+            "What is a comforting routine or object in your day?",
+            "What challenge recently taught you something important?",
+            "What is something in nature you feel grateful for today?"
+        ];
+
+        const gratitudePromptEl = document.getElementById('gratitude-prompt');
+        const newPromptBtn = document.getElementById('new-prompt');
+
+        if (gratitudePromptEl && newPromptBtn) {
+            // Restore last used prompt if available
+            const savedPrompt = localStorage.getItem('gratitudePrompt');
+            if (savedPrompt) {
+                gratitudePromptEl.textContent = `"${savedPrompt}"`;
+            }
+
+            newPromptBtn.addEventListener('click', () => {
+                if (!gratitudePrompts.length) return;
+
+                const current = gratitudePromptEl.textContent.replace(/"/g, '').trim();
+                let options = gratitudePrompts.filter(p => p !== current);
+                if (!options.length) options = gratitudePrompts;
+
+                const next = options[Math.floor(Math.random() * options.length)];
+                gratitudePromptEl.textContent = `"${next}"`;
+                localStorage.setItem('gratitudePrompt', next);
+            });
+        }
+
+        const worryTimeInput = document.getElementById('worry-time');
+        if (worryTimeInput) {
+            const savedWorryTime = localStorage.getItem('worryTime');
+            if (savedWorryTime) worryTimeInput.value = savedWorryTime;
+        }
+
+        const saveCbtBtn = document.getElementById('save-cbt');
+        if (saveCbtBtn) {
+            saveCbtBtn.addEventListener('click', () => {
+                const s = document.getElementById('cbt-situation').value.trim();
+                const t = document.getElementById('cbt-thought').value.trim();
+                const b = document.getElementById('cbt-balance').value.trim();
+                // Emotion field is optional in logging logic
+
+                if (s && t) {
+                    const now = new Date();
+                    const log = JSON.parse(localStorage.getItem('cbtLog') || '[]');
+                    log.push({ date: now, s, t, b });
+                    localStorage.setItem('cbtLog', JSON.stringify(log));
+
+                    if (typeof logDailyEntry === 'function') {
+                        logDailyEntry('cbt', {
+                            s,
+                            t,
+                            b,
+                            originalDate: now.toISOString()
+                        });
+                    }
+
+                    showStatus("Entry saved to diary.", "success", "cbt-status");
+
+                    // Cleanup UI
+                    document.getElementById('cbt-situation').value = "";
+                    document.getElementById('cbt-thought').value = "";
+                    document.getElementById('cbt-balance').value = "";
+                    document.getElementById('cbt-emotion').value = "";
+                } else {
+                    showStatus("Please fill out the situation and thought fields.", "error", "cbt-status");
+                }
+            });
+        }
+
+        const saveHierarchyBtn = document.getElementById('save-hierarchy');
+        if (saveHierarchyBtn) {
+            saveHierarchyBtn.addEventListener('click', () => {
+                const h1 = document.getElementById('hierarchy-1').value;
+                const h2 = document.getElementById('hierarchy-2').value;
+                const h3 = document.getElementById('hierarchy-3').value;
+                const h4 = document.getElementById('hierarchy-4').value;
+                const h5 = document.getElementById('hierarchy-5').value;
+
+                const steps = [h1, h2, h3, h4, h5];
+                const hasAnyContent = steps.some(step => step && step.trim() !== "");
+
+                if (!hasAnyContent) {
+                    showStatus("Add at least one step in your hierarchy before saving.", "error", "hierarchy-status");
+                    return;
+                }
+
+                const hierarchyPayload = { h1, h2, h3, h4, h5 };
+
+                // Persist as the latest hierarchy so it stays on the page between visits
+                localStorage.setItem('anxietyHierarchy', JSON.stringify(hierarchyPayload));
+
+                // Also add to per-day log so it can be exported for this date
+                if (typeof logDailyEntry === 'function') {
+                    logDailyEntry('hierarchy', hierarchyPayload);
+                }
+
+                showStatus("Exposure hierarchy saved.", "success", "hierarchy-status");
+            });
+        }
+
+
+        // --- 9. WORRY TIME SCHEDULER (DAILY REMINDER) ---
+
+        let worryReminderIntervalId = null;
+        let worryBeepIntervalId = null;
+        let worryBeepTimeoutId = null;
+        let worryAudioContext = null;
+
+        // Create / re-use AudioContext.
+        // IMPORTANT: must be called at least once from a user click
+        // (e.g. clicking "Set Reminder") so the browser allows audio from timers later.
+        function ensureWorryAudioContext() {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return null;
+
+                if (!worryAudioContext) {
+                    worryAudioContext = new AudioContext();
+                }
+
+                if (worryAudioContext.state === "suspended") {
+                    const resumePromise = worryAudioContext.resume();
+                    if (resumePromise && typeof resumePromise.then === "function") {
+                        resumePromise.catch(() => {
+                            console.warn("Unable to resume AudioContext for worry reminder.");
+                        });
+                    }
+                }
+
+                return worryAudioContext;
+            } catch (e) {
+                console.warn("AudioContext not available for worry reminder beep", e);
+                return null;
+            }
+        }
+
+        // Small silent beep to "unlock" audio on a user gesture
+        function primeWorryAudio() {
+            const ctx = ensureWorryAudioContext();
+            if (!ctx) return;
+
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            gain.gain.setValueAtTime(0, ctx.currentTime); // silent
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + 0.05);
+        }
+
+        // Start the repeating beep until stopped or timeout
+        function playWorryBeep() {
+            const ctx = ensureWorryAudioContext();
+            if (!ctx) return;
+
+            function createBeep(time) {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                osc.type = "sine";
+                osc.frequency.value = 880;
+                gain.gain.setValueAtTime(0.15, time);
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                osc.start(time);
+                osc.stop(time + 0.12);
+            }
+
+            function play3Beeps() {
+                if (!worryAudioContext) return;
+                const now = worryAudioContext.currentTime;
+                createBeep(now);
+                createBeep(now + 0.25);
+                createBeep(now + 0.5);
+            }
+
+            // Already beeping? Don't stack another loop.
+            if (worryBeepIntervalId) return;
+
+            // 1. Play once immediately
+            play3Beeps();
+
+            // 2. Repeat every 2 seconds
+            worryBeepIntervalId = setInterval(play3Beeps, 2000);
+
+            // 3. Safety: stop automatically after 5 minutes
+            const BEEP_MAX_DURATION_MS = 5 * 60 * 1000;
+            worryBeepTimeoutId = setTimeout(() => {
+                stopWorryBeep();
+            }, BEEP_MAX_DURATION_MS);
+        }
+
+        function stopWorryBeep() {
+            if (worryBeepIntervalId) {
+                clearInterval(worryBeepIntervalId);
+                worryBeepIntervalId = null;
+            }
+            if (worryBeepTimeoutId) {
+                clearTimeout(worryBeepTimeoutId);
+                worryBeepTimeoutId = null;
+            }
+            if (worryAudioContext && typeof worryAudioContext.close === "function") {
+                worryAudioContext.close();
+            }
+            worryAudioContext = null;
+        }
+
+        function startWorryReminderWatcher() {
+            if (worryReminderIntervalId) {
+                clearInterval(worryReminderIntervalId);
+                worryReminderIntervalId = null;
+            }
+
+            const storedTime = localStorage.getItem("worryTime");
+            if (!storedTime) return;
+
+            const [hours, minutes] = storedTime.split(":").map(Number);
+            if (Number.isNaN(hours) || Number.isNaN(minutes)) return;
+
+            const now = new Date();
+            const nextTrigger = new Date(now);
+            nextTrigger.setHours(hours, minutes, 0, 0);
+
+            // If today's time has already passed, schedule for tomorrow
+            if (nextTrigger <= now) {
+                nextTrigger.setDate(nextTrigger.getDate() + 1);
+            }
+
+            const triggerIso = nextTrigger.toISOString();
+            localStorage.setItem("worryTimeNext", triggerIso);
+
+            // Check every 30 seconds if we've hit the worry window
+            worryReminderIntervalId = setInterval(() => {
+                const current = new Date();
+                const diffMs = new Date(triggerIso).getTime() - current.getTime();
+
+                // Fire once within a 1-minute window around the scheduled time
+                if (diffMs <= 0 && diffMs > -60000) {
+                    playWorryBeep();
+                    showStatus(
+                        "It's your scheduled worry time now. If it feels safe, take 10–15 minutes to write your worries.",
+                        "success",
+                        "worry-status",
+                        5 * 60 * 1000 // keep the message visible for 5 minutes
+                    );
+                    clearInterval(worryReminderIntervalId);
+                    worryReminderIntervalId = null;
+                } else if (diffMs <= -60000) {
+                    // If we're more than a minute past, stop checking for this slot
+                    clearInterval(worryReminderIntervalId);
+                    worryReminderIntervalId = null;
+                }
+            }, 30000);
+        }
+
+        const setWorryReminderBtn = document.getElementById("set-worry-reminder");
+        if (setWorryReminderBtn) {
+            setWorryReminderBtn.addEventListener("click", () => {
+                const timeInput = document.getElementById("worry-time");
+                const time = timeInput ? timeInput.value : "";
+
+                if (!time) {
+                    showStatus(
+                        "Please choose a time for your worry period.",
+                        "error",
+                        "worry-status",
+                        8000
+                    );
+                    return;
+                }
+
+                // Prime audio context + silent beep from a user gesture
+                primeWorryAudio();
+
+                localStorage.setItem("worryTime", time);
+
+                if (typeof logDailyEntry === "function") {
+                    logDailyEntry("worryTime", { time });
+                }
+
+                showStatus(`Reminder set for ${time}.`, "success", "worry-status", 5000);
+                startWorryReminderWatcher();
+            });
+        }
+
+        // Stop only today's reminder (keep the time saved)
+        const stopWorryTodayBtn = document.getElementById("stop-worry-today");
+        if (stopWorryTodayBtn) {
+            stopWorryTodayBtn.addEventListener("click", () => {
+                const hasTodayReminder =
+                    !!worryReminderIntervalId || !!localStorage.getItem("worryTimeNext");
+
+                if (!hasTodayReminder) {
+                    // Nothing scheduled for today – ignore click (no message).
+                    return;
+                }
+
+                if (worryReminderIntervalId) {
+                    clearInterval(worryReminderIntervalId);
+                    worryReminderIntervalId = null;
+                }
+                localStorage.removeItem("worryTimeNext");
+
+                showStatus(
+                    "Today's reminder stopped. You'll still keep your saved worry time.",
+                    "success",
+                    "worry-status",
+                    5000
+                );
+            });
+        }
+
+        // Turn off daily reminders completely
+        const clearWorryReminderBtn = document.getElementById("clear-worry-reminder");
+        if (clearWorryReminderBtn) {
+            clearWorryReminderBtn.addEventListener("click", () => {
+                const hasAnyReminder =
+                    !!localStorage.getItem("worryTime") ||
+                    !!localStorage.getItem("worryTimeNext") ||
+                    !!worryReminderIntervalId;
+
+                if (!hasAnyReminder) {
+                    // Nothing to clear – ignore click (no message).
+                    return;
+                }
+
+                if (worryReminderIntervalId) {
+                    clearInterval(worryReminderIntervalId);
+                    worryReminderIntervalId = null;
+                }
+                stopWorryBeep();
+                localStorage.removeItem("worryTime");
+                localStorage.removeItem("worryTimeNext");
+
+                const timeInput = document.getElementById("worry-time");
+                if (timeInput) timeInput.value = "";
+
+                showStatus(
+                    "Daily worry reminder turned off.",
+                    "success",
+                    "worry-status",
+                    5000
+                );
+            });
+        }
+
+        // Stop the beeping manually (your Stop Beep button)
+        const stopWorryBeepBtn = document.getElementById("stop-worry-beep");
+        if (stopWorryBeepBtn) {
+            stopWorryBeepBtn.addEventListener("click", () => {
+                // Only respond if a beep cycle is actually active
+                if (!worryBeepIntervalId && !worryBeepTimeoutId && !worryAudioContext) {
+                    return;
+                }
+
+                // Stop the sound but do NOT touch the worry-status message,
+                // so the "scheduled worry time" text stays visible for 5 minutes.
+                stopWorryBeep();
+            });
+        }
+
+        // When the page loads, resume any pending reminder
+        startWorryReminderWatcher();
+
+
+        // --- 10. SELF-COMPASSION EXERCISE ---
+
+        const saveSelfCompassionBtn = document.getElementById("save-self-compassion");
+        if (saveSelfCompassionBtn) {
+            saveSelfCompassionBtn.addEventListener("click", () => {
+                const s = document.getElementById("sc-struggle").value.trim();
+                const r = document.getElementById("sc-response").value.trim();
+                const f = document.getElementById("sc-friend-words").value.trim();
+
+                if (s && r) {
+                    const now = new Date();
+                    localStorage.setItem(
+                        "selfCompassion",
+                        JSON.stringify({ date: now.toISOString(), s, r, f })
+                    );
+
+                    if (typeof logDailyEntry === "function") {
+                        logDailyEntry("selfCompassion", {
+                            s,
+                            r,
+                            f,
+                            originalDate: now.toISOString()
+                        });
+                    }
+
+                    showStatus("Reflection saved.", "success", "self-compassion-status");
+
+                    document.getElementById("sc-struggle").value = "";
+                    document.getElementById("sc-response").value = "";
+                    document.getElementById("sc-friend-words").value = "";
+                } else {
+                    showStatus(
+                        "Please describe your struggle and compassionate response.",
+                        "error",
+                        "self-compassion-status"
+                    );
+                }
+            });
+        }
+
+
+        // Sleep Calc
+        const calcSleepBtn = document.getElementById('calc-sleep');
+        if (calcSleepBtn) {
+            calcSleepBtn.addEventListener('click', function () {
+                const wakeTime = document.getElementById('wake-time').value;
+                if (!wakeTime) return;
+
+                const [hours, minutes] = wakeTime.split(':').map(Number);
+                const wakeDate = new Date();
+                // Set the current date/time to today's date, but with the selected wake time
+                wakeDate.setHours(hours, minutes, 0, 0);
+
+                const cycles = [6, 5, 4];
+                const results = document.getElementById('sleep-results');
+                if (!results) return;
+
+                let html = '<h4 style="color: var(--accent-purple); margin-bottom: 20px; text-align: center;">Optimal Bedtimes (including 15 min to fall asleep)</h4>';
+                html += '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; text-align: center;">';
+
+                cycles.forEach(cycle => {
+                    const sleepTime = new Date(wakeDate);
+                    // Cycle calculation: subtract (cycle * 90 minutes) for sleep + 15 minutes to fall asleep
+                    sleepTime.setMinutes(sleepTime.getMinutes() - (cycle * 90 + 15));
+                    const timeStr = sleepTime.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true });
+                    const hoursOfSleep = (cycle * 90) / 60;
+
+                    html += `
+                        <div style="padding: 15px; background: rgba(26, 45, 71, 0.5); border-radius: 8px;">
+                            <div style="font-family: 'Space Mono', monospace; font-size: 1.5rem; color: var(--accent-purple); margin-bottom: 5px;">${timeStr}</div>
+                            <div style="font-size: 13px; color: var(--text-dim);">${cycle} cycles (${hoursOfSleep} hours)</div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                results.innerHTML = html;
+            });
+        }
+
+        // --- 9. INITIALIZATION & SCROLL ---
+
+        window.onload = function () {
+            loadCountry();
+            initChart();          // Chart is initialized on load
+            renderRoutine();      // Routine is loaded on load
+            populateExportDateOptions(); // Fill export date dropdown (last logged days)
+            hydrateHierarchyFromStorage(); // Restore hierarchy inputs
+            startWorryReminderWatcher();   // Start worry-time reminder if set
+
+            // Scroll reveal & Nav (Re-run after content is fully loaded)
+            const observerOptions = { threshold: 0.1, rootMargin: '0px 0px -100px 0px' };
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.style.opacity = '1';
+                        entry.target.style.transform = 'translateY(0)';
+                    }
+                });
+            }, observerOptions);
+
+            const sectionsToReveal = document.querySelectorAll('.content-section, .feature-card');
+            sectionsToReveal.forEach(section => {
+                section.style.opacity = '0';
+                section.style.transform = 'translateY(40px)';
+                observer.observe(section);
+            });
+
+            // Hide nav on scroll down, show on scroll up
+            let lastScroll = 0;
+            window.addEventListener('scroll', () => {
+                const currentScroll = window.pageYOffset;
+                const nav = document.querySelector('.nav-header');
+                if (nav) {
+                    if (currentScroll > lastScroll && currentScroll > 100) {
+                        nav.style.transform = 'translateY(-100%)';
+                    } else {
+                        nav.style.transform = 'translateY(0)';
+                    }
+                }
+                lastScroll = currentScroll;
+            });
+        };
+
+
+        function hydrateHierarchyFromStorage() {
+            try {
+                const saved = JSON.parse(localStorage.getItem('anxietyHierarchy') || '{}');
+                if (!saved || typeof saved !== 'object') return;
+
+                for (let i = 1; i <= 5; i++) {
+                    const input = document.getElementById(`hierarchy-${i}`);
+                    if (input && saved[`h${i}`]) {
+                        input.value = saved[`h${i}`];
+                    }
+                }
+            } catch (e) {
+                console.error('Failed to restore hierarchy from storage', e);
+            }
+        };
+    </script>
+</body>
+
+</html>

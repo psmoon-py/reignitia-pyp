@@ -1,0 +1,1528 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <title>ReIgnitia - The Global Education Crisis</title>
+    <meta charset="utf-8">
+    <meta name="description" content="Interactive journey through educational inequality and the solution" />
+    <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black">
+    <link rel="icon" type="image/svg+xml" href="../assets/logo.svg">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #ffffff;
+            --bg-color: #000000;
+            /* ACCENT COLORS DERIVED FROM LOGO */
+            --accent-color-intro: #FF7043;
+            /* Orangish-red from logo */
+            --accent-light: #4FC3F7;
+            /* Bluish from logo */
+            --text-gray: #888888;
+            --animation-duration: 1.5s;
+        }
+
+        /* Intro overlay */
+        .intro-container {
+            position: fixed;
+            width: 100%;
+            height: 100vh;
+            z-index: 10001;
+            background: var(--bg-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 2s ease-out;
+            cursor: default;
+        }
+
+        .intro-container.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        #intro-canvas {
+            position: fixed;
+            width: 100%;
+            height: 100vh;
+            z-index: 1;
+        }
+
+        .intro-overlay {
+            position: fixed;
+            width: 100%;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0);
+            z-index: 2;
+        }
+
+        .intro-text-container {
+            position: fixed;
+            width: 80%;
+            text-align: center;
+            z-index: 3;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .intro-text {
+            position: absolute;
+            width: 100%;
+            opacity: 0;
+            transform: translate(-50%, -50%);
+            left: 50%;
+            top: 50%;
+            font-size: clamp(24px, 4vw, 42px);
+            line-height: 1.4;
+            font-weight: 400;
+            letter-spacing: .5px;
+            animation: none;
+            pointer-events: none;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .intro-text.active {
+            animation: fadeInOut 5s ease-in-out;
+        }
+
+        @keyframes fadeInOut {
+            0% {
+                opacity: 0;
+                transform: translate(-50%, -40%);
+            }
+
+            20% {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+
+            80% {
+                opacity: 1;
+                transform: translate(-50%, -50%);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translate(-50%, -60%);
+            }
+        }
+
+        .intro-text .highlight {
+            color: var(--accent-color-intro);
+            /* Changed to orangish-red */
+            font-weight: 700;
+            font-style: italic;
+        }
+
+        .intro-skip-button {
+            position: fixed;
+            bottom: 50px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 32px;
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, .3);
+            color: var(--text-gray);
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all .3s;
+            z-index: 4;
+        }
+
+        .intro-skip-button:hover {
+            background: rgba(255, 112, 67, .1);
+            /* Changed to orangish-red with opacity */
+            border-color: var(--accent-color-intro);
+            /* Changed to orangish-red */
+            color: var(--primary-color);
+        }
+
+        .sound-toggle {
+            position: fixed;
+            top: 40px;
+            right: 40px;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            z-index: 4;
+            opacity: .5;
+            transition: opacity .3s;
+        }
+
+        .sound-toggle:hover {
+            opacity: 1;
+        }
+    </style>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-dark: #000000;
+            /* Main accent color (orangish-red from logo) */
+            --accent: #FF7043;
+            --danger: #ff6b6b;
+            --warning: #4FC3F7;
+            /* Bluish from logo, used for secondary accent/warning */
+            --text: #ffffff;
+            --text-dim: rgba(255, 255, 255, .5);
+            --nav-width: 80px;
+            /* a comfortable centered column width */
+            --content-width: clamp(320px, 62ch, 740px);
+            --easing: cubic-bezier(0.23, 1, 0.320, 1);
+        }
+
+        html {
+            overflow: hidden;
+            height: 100vh;
+            background: #000;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background: var(--bg-dark);
+            color: var(--text);
+            font-family: 'Space Grotesk', system-ui, sans-serif;
+            overflow: hidden;
+            cursor: crosshair;
+        }
+
+        #container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            z-index: 1;
+            background: transparent;
+        }
+
+        #fade-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: #000;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        .story-progress {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: rgba(255, 255, 255, .1);
+            z-index: 2000;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, var(--accent), var(--warning));
+            /* Changed to accent and warning */
+            transition: width 1s var(--easing);
+            box-shadow: 0 0 10px var(--accent);
+        }
+
+        .progress-text {
+            position: fixed;
+            top: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: 'Space Mono', monospace;
+            font-size: 10px;
+            color: var(--text-dim);
+            letter-spacing: 2px;
+            z-index: 2001;
+        }
+
+        .story-viewport {
+            position: fixed;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .content-wrapper {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 100;
+        }
+
+        /* ──────────────────────────────────────────
+ CENTER ALL SECTIONS (desktop baseline)
+ ────────────────────────────────────────── */
+        .content-section {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: var(--content-width);
+            max-width: min(90vw, var(--content-width));
+            /* default state (before .active) sits slightly below center for a soft rise-in */
+            transform: translate(-50%, calc(-50% + 40px));
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .6s var(--easing), transform .6s var(--easing);
+            text-align: center;
+        }
+
+        .content-section.active {
+            opacity: 1;
+            transform: translate(-50%, -50%);
+            pointer-events: auto;
+        }
+
+        /* left/right class names are now aliases for the centered layout */
+        .content-left,
+        .content-right,
+        .content-center,
+        .content-bottom {
+            left: 50%;
+            right: auto;
+            top: 50%;
+            bottom: auto;
+            transform: translate(-50%, -50%);
+            text-align: center;
+        }
+
+        .section-number {
+            font-family: 'Space Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 3px;
+            color: var(--accent);
+            /* Changed to accent */
+            text-transform: uppercase;
+            margin-bottom: 24px;
+            opacity: .8;
+        }
+
+        .section-title {
+            font-size: clamp(36px, 5vw, 64px);
+            font-weight: 700;
+            line-height: 1;
+            margin-bottom: 16px;
+            letter-spacing: -2px;
+            font-family: 'Playfair Display', serif;
+        }
+
+        .section-subtitle {
+            font-size: 18px;
+            color: var(--text-dim);
+            margin-bottom: 24px;
+            font-weight: 300;
+        }
+
+        /* compact centered reading column */
+        .section-text {
+            font-size: 16px;
+            line-height: 1.7;
+            color: rgba(255, 255, 255, .85);
+            max-width: 56ch;
+            margin: 0 auto;
+            text-align: justify;
+            text-justify: inter-word;
+            hyphens: auto;
+            letter-spacing: .2px;
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin-top: 32px;
+        }
+
+        .data-card {
+            background: rgba(255, 255, 255, .05);
+            border: 1px solid rgba(255, 255, 255, .1);
+            border-radius: 8px;
+            padding: 16px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            transition: all .3s;
+        }
+
+        .data-card.highlight {
+            border-color: var(--accent);
+            /* Changed to accent */
+            animation: pulse-highlight 2s infinite;
+        }
+
+        @keyframes pulse-highlight {
+
+            0%,
+            100% {
+                border-color: var(--accent);
+                /* Changed to accent */
+                box-shadow: 0 0 10px rgba(255, 112, 67, .3);
+                /* Changed to accent with opacity */
+            }
+
+            50% {
+                box-shadow: 0 0 20px rgba(255, 112, 67, .5);
+                /* Changed to accent with opacity */
+            }
+        }
+
+        .data-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .data-value {
+            font-size: 28px;
+            font-weight: 700;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .data-unit {
+            font-size: 14px;
+            color: var(--text-dim);
+            margin-left: 4px;
+        }
+
+        /* ──────────────────────────────────────────
+ Timeline/Ruler Navigation
+ ────────────────────────────────────────── */
+        .nav-ruler {
+            position: fixed;
+            right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: var(--nav-width);
+            height: 400px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .ruler-track {
+            position: relative;
+            width: 2px;
+            height: 100%;
+            background: rgba(255, 255, 255, .1);
+        }
+
+        .ruler-markers {
+            position: absolute;
+            inset: 0;
+        }
+
+        .ruler-marker {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 1px;
+            background: rgba(255, 255, 255, .3);
+            transition: all .3s;
+            cursor: pointer;
+        }
+
+        .ruler-marker:hover {
+            width: 30px;
+            background: var(--accent);
+            /* Changed to accent */
+        }
+
+        .ruler-marker.active {
+            width: 40px;
+            background: var(--accent);
+            /* Changed to accent */
+            box-shadow: 0 0 20px var(--accent);
+            /* Changed to accent */
+        }
+
+        .ruler-indicator {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            /* Changed to accent */
+            border-radius: 50%;
+            transition: top .8s var(--easing);
+            box-shadow: 0 0 20px var(--accent);
+            /* Changed to accent */
+        }
+
+        .hud-element {
+            position: fixed;
+            font-size: 11px;
+            letter-spacing: 1px;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            z-index: 80;
+            font-family: 'Space Mono', monospace;
+        }
+
+        .hud-top-left {
+            top: 30px;
+            left: 30px;
+        }
+
+        .hud-top-right {
+            top: 30px;
+            right: 30px;
+            text-align: right;
+        }
+
+        .stars-container {
+            position: fixed;
+            width: 100%;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .hero-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 18px 40px;
+            background: transparent;
+            border: 2px solid var(--accent);
+            /* Changed to accent */
+            color: var(--accent);
+            /* Changed to accent */
+            text-decoration: none;
+            transition: all .3s;
+            margin: 32px auto 0;
+            /* 👈 centers the button block */
+            cursor: pointer;
+            font-family: 'Space Mono', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .hero-button:hover {
+            background: var(--accent);
+            /* Changed to accent */
+            color: var(--bg-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(255, 112, 67, .3);
+            /* Changed to accent with opacity */
+        }
+
+        .skip-button {
+            position: fixed;
+            bottom: 14px;
+            right: 30%;
+            left: 30%;
+            padding: 12px 24px;
+            background: rgba(255, 255, 255, .1);
+            border: 1px solid rgba(255, 255, 255, .3);
+            color: #fff;
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            cursor: pointer;
+            z-index: 100;
+            opacity: 0;
+            transition: all .3s;
+        }
+
+        .skip-button.visible {
+            opacity: 1;
+        }
+
+        .skip-button:hover {
+            background: rgba(255, 112, 67, .2);
+            /* Changed to accent with opacity */
+            border-color: var(--accent);
+            /* Changed to accent */
+            color: var(--accent);
+            /* Changed to accent */
+        }
+
+        .bottom-left-controls {
+            position: fixed;
+            bottom: 62px;
+            left: 145px;
+            z-index: 100;
+            display: flex;
+            gap: 15px;
+        }
+
+        .bottom-right-controls {
+            position: fixed;
+            bottom: 62px;
+            right: 145px;
+            z-index: 100;
+            display: flex;
+            gap: 15px;
+        }
+
+        .control-button {
+            padding: 10px 15px;
+            background: rgba(0, 0, 0, .5);
+            border: 1px solid var(--accent);
+            /* Changed to accent */
+            border-radius: 4px;
+            color: var(--accent);
+            /* Changed to accent */
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all .3s;
+            text-transform: uppercase;
+        }
+
+        .control-button:hover {
+            background: rgba(255, 112, 67, .1);
+            /* Changed to accent with opacity */
+            box-shadow: 0 0 10px rgba(255, 112, 67, .3);
+            /* Changed to accent with opacity */
+        }
+
+        .control-button2 {
+            padding: 12px 25px;
+            background: var(--accent);
+            /* Changed to accent */
+            border: 1px solid #000;
+            border-radius: 4px;
+            color: #000;
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            font-weight: 500;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all .3s;
+            text-transform: uppercase;
+        }
+
+        .control-button2:hover {
+            background: #fff;
+            box-shadow: 0 0 10px rgba(255, 112, 67, .3);
+            /* Changed to accent with opacity */
+        }
+
+        /* Scramble effect remains unchanged */
+        .scramble-text-story,
+        .scramble-text {
+            display: inline-block;
+            position: relative;
+            font-family: inherit;
+            min-width: fit-content;
+        }
+
+        .scramble-text-story.animating,
+        .scramble-text.animating {
+            animation: scrambleGlitch .3s infinite;
+        }
+
+        @keyframes scrambleGlitch {
+
+            0%,
+            100% {
+                text-shadow: .05em 0 0 rgba(255, 112, 67, .75),
+                    /* Changed to accent with opacity */
+                    -.05em -.025em 0 rgba(79, 195, 247, .75),
+                    /* Changed to warning with opacity */
+                    .025em .05em 0 rgba(255, 112, 67, .75);
+                /* Changed to accent with opacity */
+            }
+
+            15% {
+                text-shadow: -.05em -.025em 0 rgba(255, 112, 67, .75),
+                    /* Changed to accent with opacity */
+                    .025em .025em 0 rgba(79, 195, 247, .75),
+                    /* Changed to warning with opacity */
+                    -.05em -.05em 0 rgba(255, 112, 67, .75);
+                /* Changed to accent with opacity */
+            }
+        }
+
+        .intro-text.active.scramble-text-story.animating {
+            animation: fadeInOut 5s ease-in-out, scrambleGlitch .3s infinite;
+        }
+
+        /* ─────────────────────────────
+ MOBILE: center + fit viewport
+ ───────────────────────────── */
+        /* Mobile layout */
+        @media (max-width: 768px) {
+
+            /* keep HUD above the card */
+            .hud-element {
+                z-index: 3000;
+            }
+
+            /* hide the ruler only on mobile */
+            .nav-ruler {
+                display: none;
+            }
+
+            /* each section becomes a centered scrollable card */
+            .content-section {
+                padding: 20px;
+                width: calc(100vw - 40px);
+                max-width: 680px;
+                left: 50% !important;
+                right: auto !important;
+                top: 50% !important;
+                transform: translate(-50%, -50%) !important;
+
+                /* leave vertical room for HUD + bottom buttons */
+                max-height: calc(100vh - 120px);
+                overflow: auto;
+
+                text-align: center;
+            }
+
+            .section-title {
+                font-size: 28px;
+            }
+
+            .section-text {
+                text-align: justify;
+                max-width: none;
+            }
+
+            /* center the hero button (section 8) */
+            .hero-button {
+                margin-left: auto;
+                margin-right: auto;
+            }
+
+            /* === bottom buttons on mobile ===
+ - show BOTH
+ - fixed at the bottom
+ - side-by-side around the center
+*/
+            .bottom-left-controls,
+            .bottom-right-controls {
+                position: fixed;
+                bottom: 24px;
+                z-index: 2500;
+                display: flex !important;
+                align-items: center;
+            }
+
+            /* "Skip to the end" – slightly left of center */
+            .bottom-left-controls {
+                left: 50%;
+                transform: translateX(-100%) translateX(-8px);
+            }
+
+            /* "View all scientists" – slightly right of center */
+            .bottom-right-controls {
+                right: 50%;
+                transform: translateX(100%) translateX(8px);
+            }
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <!-- === 0. INTRO SCREEN OVERLAY === -->
+    <div class="intro-container" id="introContainer">
+        <canvas id="intro-canvas"></canvas>
+        <div class="intro-overlay"></div>
+
+        <div class="intro-text-container">
+            <div class="intro-text" data-intro-step="0">Every 3 seconds, <span class="highlight scramble-text-story">one child drops out</span>.</div>
+            <div class="intro-text" data-intro-step="1">Not because they lack <span class="highlight scramble-text-story">talent</span>.</div>
+            <div class="intro-text" data-intro-step="2">But because the world built <span class="highlight scramble-text-story">walls</span> they cannot climb.</div>
+            <div class="intro-text" data-intro-step="3"><span class="highlight scramble-text-story">272 million</span> are locked out. Right now.</div>
+            <div class="intro-text" data-intro-step="4">We are here to make a <span class="highlight scramble-text-story">change</span>.</div>
+            <div class="intro-text" data-intro-step="5">This is <span class="highlight scramble-text-story">ReIgnitia</span>.</div>
+        </div>
+
+        <div class="sound-toggle" onclick="toggleSound()">
+            <svg id="soundIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1"
+                stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 5L6 9H2v6h4l5 4z"></path>
+                <path id="muteX" d="M15 9l6 6M21 9l-6 6" style="display: none;"></path>
+                <path id="volumeWaves" d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+            </svg>
+        </div>
+        <button class="intro-skip-button" id="skipIntro">Skip Sequence (or Click to Enter)</button>
+    </div>
+
+    <!-- === 1. VISUAL & INTERACTION ELEMENTS === -->
+
+    <div id="starsContainer" class="stars-container">
+        <canvas id="starfieldCanvas"></canvas>
+    </div>
+
+    <div class="story-progress">
+        <div class="progress-fill" id="storyProgress"></div>
+    </div>
+    <div class="progress-text" id="progressText">LOADING DATA 00%</div>
+
+    <div class="hud-element hud-top-left">REIGNITIA // STORY-MODE</div>
+    <div class="hud-element hud-top-right">INITIATION LOG // STABLE</div>
+
+    <div class="nav-ruler">
+        <div class="ruler-track">
+            <div class="ruler-indicator" id="rulerIndicator"></div>
+            <div class="ruler-markers" id="rulerMarkers"></div>
+        </div>
+    </div>
+
+    <!-- === 2. MAIN STORY VIEWPORT === -->
+    <div class="story-viewport" id="storyViewport">
+
+        <div class="content-wrapper" id="contentWrapper">
+
+            <!-- SECTION 0: HERO -->
+            <div id="section-0" class="content-section active" data-index="0" data-label="PROTOCOL 00: ORIGIN">
+                <div class="section-number">00 — THE INVISIBLE CRISIS</div>
+                <h1 class="section-title">Every 3 seconds, <span class="scramble-text">one student</span> is lost.</h1>
+                <p class="section-subtitle">The world produces enough resources to educate every child. Yet hundreds of millions remain locked out.</p>
+                <p class="section-text">This is not a failure of effort. This is a failure of access. Geography. Cost. Systemic neglect. The barriers are artificial, but the consequences are devastating. Talent is universal. Opportunity is not. ReIgnitia exists to fix that.</p>
+
+                <button class="hero-button" onclick="window.storyExperience.nextSection()">
+                    <span class="scramble-text">BEGIN DATA STREAM</span>
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M7 4l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- SECTION 1: GLOBAL EXCLUSION -->
+            <div id="section-1" class="content-section" data-index="1" data-label="PROTOCOL 01: EXCLUSION">
+                <div class="section-number">01 — LOCKED OUT</div>
+                <h2 class="section-title"><span class="scramble-text">272 Million</span> Students Are Out of School</h2>
+                <p class="section-text">In 2024, 272 million children and youth worldwide are not enrolled in any school. This number has grown by 21 million since 2021. The global out-of-school rate declined by only 1% over the last decade.</p>
+                <p class="section-text">Sub-Saharan Africa bears the heaviest burden. 98 million students are excluded from education in this region alone. That is 29.5% of all school-age children. In Nigeria, 20 million children have never attended school. In Ethiopia, armed conflict has displaced 4.5 million students.</p>
+
+                <div class="data-grid">
+                    <div class="data-card highlight">
+                        <div class="data-value">272M</div>
+                        <div class="data-label">Children and Youth Out of School</div>
+                        <div class="data-unit">UNESCO Global Education Monitoring Report 2024</div>
+                    </div>
+                    <div class="data-card">
+                        <div class="data-value">98M</div>
+                        <div class="data-label">Out of School in Sub-Saharan Africa</div>
+                        <div class="data-unit">UNESCO 2024</div>
+                    </div>
+                    <div class="data-card">
+                        <div class="data-value">29.5%</div>
+                        <div class="data-label">Out-of-School Rate in Sub-Saharan Africa</div>
+                        <div class="data-unit">Highest in the World</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 2: LEARNING POVERTY -->
+            <div id="section-2" class="content-section" data-index="2" data-label="PROTOCOL 02: LEARNING CRISIS">
+                <div class="section-number">02 — THE LEARNING VOID</div>
+                <h2 class="section-title">Sitting in class does not mean <span class="scramble-text">learning</span>.</h2>
+                <p class="section-text">In low and middle-income countries, 7 out of 10 children cannot read and understand a simple age-appropriate text by age 10. This is learning poverty. Before COVID-19, this rate was 53%. The pandemic pushed it to 70%.</p>
+                <p class="section-text">In India, 56.4% of students live in learning poverty. That is 332 million children who sit in classrooms but gain nothing. In Pakistan, the rate is 71%. In Madagascar, 88%. The system is broken.</p>
+                <p class="section-text">The cost? The World Bank estimates $21 trillion in lifetime earnings lost for this generation.</p>
+
+                <div class="data-grid">
+                    <div class="data-card highlight">
+                        <div class="data-value">70%</div>
+                        <div class="data-label">Students in Learning Poverty</div>
+                        <div class="data-unit">Low/Middle-Income Countries</div>
+                    </div>
+                    <div class="data-card">
+                        <div class="data-value">$21T</div>
+                        <div class="data-label">Lifetime Earnings Lost</div>
+                        <div class="data-unit">World Bank 2024</div>
+                    </div>
+                    <div class="data-card">
+                        <div class="data-value">332M</div>
+                        <div class="data-label">Indian Students in Learning Poverty</div>
+                        <div class="data-unit">World Bank India Brief 2024</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 3: THE COST BARRIER -->
+            <div id="section-3" class="content-section" data-index="3" data-label="PROTOCOL 03: COST CRISIS">
+                <div class="section-number">03 — PRICED OUT</div>
+                <h2 class="section-title">Education should not require <span class="scramble-text">starvation</span>.</h2>
+                <p class="section-text">In the United States, full-time college students spend an average of $1,370 per year on books and supplies. For a family earning minimum wage, that is three weeks of income. Textbook prices have increased 162% since 2000. General inflation rose only 74%.</p>
+                <p class="section-text">The result? 65% of college students skip buying required textbooks because they cannot afford them. 25% work extra hours to pay for books. 11% skip meals.</p>
+                <p class="section-text">Globally, the average cost of textbooks in developing countries can equal an entire month of household income. Students must choose: eat or learn. Most choose survival.</p>
+
+                <div class="data-grid">
+                    <div class="data-card highlight">
+                        <div class="data-value">$1,370</div>
+                        <div class="data-label">Annual Textbook Cost Per Student</div>
+                        <div class="data-unit">U.S. College Board 2024-2025</div>
+                    </div>
+                    <div class="data-card">
+                        <div class="data-value">162%</div>
+                        <div class="data-label">Textbook Price Increase Since 2000</div>
+                        <div class="data-unit">Education Data Initiative 2024</div>
+                    </div>
+                    <div class="data-card">
+                        <div class="data-value">65%</div>
+                        <div class="data-label">Students Who Skip Buying Books</div>
+                        <div class="data-unit">Due to Cost</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 4: MENTAL HEALTH CRISIS -->
+            <div id="section-4" class="content-section" data-index="4" data-label="PROTOCOL 04: MENTAL CRISIS">
+                <div class="section-number">04 — BREAKING POINT</div>
+                <h2 class="section-title">The pressure is <span class="scramble-text">crushing</span> them.</h2>
+                <p class="section-text">In 2023, 40% of high school students in the United States reported persistent feelings of sadness or hopelessness. 20% seriously considered suicide. Among college students, 60% met criteria for at least one mental health problem during the 2020-2021 school year.</p>
+                <p class="section-text">Academic pressure. Financial stress. Social isolation. An education system designed for success has become a factory for despair. Most students never receive help. Wait times for campus counseling stretch for months. Many give up.</p>
+                <p class="section-text">In India, student suicides reached 13,044 in 2022. That is 36 students every single day. Education should ignite futures. Instead, it extinguishes them.</p>
+
+                <div class="data-grid">
+                    <div class="data-card highlight">
+                        <div class="data-value">40%</div>
+                        <div class="data-label">High School Students With Persistent Sadness</div>
+                        <div class="data-unit">CDC Youth Risk Survey 2023</div>
+                    </div>
+                    <div class="data-card">
+                        <div class="data-value">60%</div>
+                        <div class="data-label">College Students With Mental Health Issues</div>
+                        <div class="data-unit">Healthy Minds Study 2021</div>
+                    </div>
+                    <div class="data-card">
+                        <div class="data-value">36/day</div>
+                        <div class="data-label">Student Suicides in India</div>
+                        <div class="data-unit">National Crime Records 2022</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 5: OPPORTUNITY WASTELAND -->
+            <div id="section-5" class="content-section" data-index="5" data-label="PROTOCOL 05: LOST OPPORTUNITY">
+                <div class="section-number">05 — MONEY LEFT ON THE TABLE</div>
+                <h2 class="section-title"><span class="scramble-text">$100 Million</span> Goes Unclaimed Every Year</h2>
+                <p class="section-text">That much scholarship money sits unused annually. Not because students do not need it. But because they do not know it exists. Add $4.4 billion in Pell Grants left unclaimed in 2024 because students never filled out financial aid forms.</p>
+                <p class="section-text">The money is there. The need is desperate. But information remains locked behind complex systems most students cannot navigate. First-generation college students. Low-income families. Rural communities. They are shut out twice: once by poverty, again by complexity.</p>
+
+                <div class="data-grid">
+                    <div class="data-card highlight">
+                        <div class="data-value">$100M</div>
+                        <div class="data-label">Unclaimed Scholarship Money</div>
+                        <div class="data-unit">Annually in U.S.</div>
+                    </div>
+                    <div class="data-card">
+                        <div class="data-value">$4.4B</div>
+                        <div class="data-label">Pell Grants Left Unclaimed</div>
+                        <div class="data-unit">National College Network 2024</div>
+                    </div>
+                    <div class="data-card">
+                        <div class="data-value">48%</div>
+                        <div class="data-label">Graduates Feel Unprepared for Work</div>
+                        <div class="data-unit">Career Readiness Survey 2024</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 6: THE INCOME CHASM -->
+            <div id="section-6" class="content-section" data-index="6" data-label="PROTOCOL 06: INEQUALITY GAP">
+                <div class="section-number">06 — THE WEALTH DIVIDE</div>
+                <h2 class="section-title">Education is the <span class="scramble-text">bridge</span> to prosperity.</h2>
+                <p class="section-text">In 2024, households led by someone with a bachelor's degree earned 2.3 times more than those with only a high school diploma. That gap has widened over 20 years. Education is the single strongest predictor of lifetime earnings.</p>
+                <p class="section-text">But for millions, that bridge remains out of reach. In Latin America, students from the poorest 20% of households are 10 times less likely to complete secondary education than those from the richest 20%. In sub-Saharan Africa, the gap is even wider.</p>
+                <p class="section-text">Without intervention, the cycle continues. Poverty prevents education. Lack of education ensures poverty. Generation after generation.</p>
+
+                <div class="data-grid">
+                    <div class="data-card highlight">
+                        <div class="data-value">2.3×</div>
+                        <div class="data-label">Income Gap: Bachelor's vs High School</div>
+                        <div class="data-unit">U.S. Census Bureau 2024</div>
+                    </div>
+                    <div class="data-card">
+                        <div class="data-value">10×</div>
+                        <div class="data-label">Education Completion Gap in Latin America</div>
+                        <div class="data-unit">Rich vs Poor Students</div>
+                    </div>
+                    <div class="data-card">
+                        <div class="data-value">129M</div>
+                        <div class="data-label">Indians in Extreme Poverty</div>
+                        <div class="data-unit">World Bank 2024</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 7: THE SOLUTION -->
+            <div id="section-7" class="content-section" data-index="7" data-label="PROTOCOL 07: SOLUTION">
+                <div class="section-number">07 — THE COUNTER-PROTOCOL</div>
+                <h2 class="section-title">We stopped <span class="scramble-text">waiting</span>.</h2>
+                <p class="section-text">What if every student on Earth had access to world-class resources? What if textbooks, tutoring, mental health support, scholarship databases, and career guidance were all free? What if geography and income stopped defining futures?</p>
+                <p class="section-text">ReIgnitia is not a product. It is a movement. Open-source learning platforms. Peer-to-peer tutoring economies. AI-powered personalized learning paths. Real-time collaboration tools. Integrated mental wellness systems. Scholarship matching algorithms. Career navigation frameworks.</p>
+                <p class="section-text">All in one place. All free. Forever. No paywalls. No gatekeeping. No child left behind. No talent wasted.</p>
+
+                <div class="data-grid">
+                    <div class="data-card highlight">
+                        <div class="data-value">100%</div>
+                        <div class="data-label">Free Access to All Resources</div>
+                        <div class="data-unit">Zero Cost Barrier</div>
+                    </div>
+                    <div class="data-card">
+                        <div class="data-value">24/7</div>
+                        <div class="data-label">Mental Health Support Available</div>
+                        <div class="data-unit">Integrated Platform</div>
+                    </div>
+                    <div class="data-card">
+                        <div class="data-value">∞</div>
+                        <div class="data-label">Potential Unlocked</div>
+                        <div class="data-unit">No Limits</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 8: FINAL CTA -->
+            <div id="section-8" class="content-section" data-index="8" data-label="PROTOCOL 08: ACTIVATION">
+                <div class="section-number">08 — INITIATE</div>
+                <h2 class="section-title">The barriers are <span class="scramble-text">artificial</span>.</h2>
+                <p class="section-subtitle">The solutions are real. The platform is ready. The future starts now.</p>
+                <p class="section-text">Every 3 seconds, one student was lost. Not anymore. Join the movement. Build the future. Ignite potential.</p>
+
+                <button class="hero-button" onclick="window.location.href='../dashboard/'">
+                    <span class="scramble-text">LAUNCH MISSION</span>
+                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                        <path d="M7 4l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round" />
+                    </svg>
+                </button>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- === BOTTOM CONTROLS === -->
+    <div class="bottom-left-controls">
+        <button class="control-button" onclick="window.storyExperience.previousSection()">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M10 12L6 8l4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                    stroke-linejoin="round" />
+            </svg>
+        </button>
+        <button class="control-button" onclick="window.storyExperience.nextSection()">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                <path d="M6 12l4-4-4-4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"
+                    stroke-linejoin="round" />
+            </svg>
+        </button>
+    </div>
+
+    <div class="bottom-right-controls">
+        <button class="control-button2" onclick="window.location.href='../'">
+            EXIT STORY
+        </button>
+    </div>
+
+
+    <script>
+        // === GLOBAL STATE AND UTILITIES ===
+
+        let camera, scene, renderer, particleSystem, starfieldCamera, starfieldScene, starfieldRenderer;
+        let isMuted = true;
+        let currentIntroIndex = 0;
+        let introTimeout;
+        const introTexts = document.querySelectorAll('.intro-text');
+        const sections = document.querySelectorAll('.content-section');
+        const totalSections = sections.length;
+        const body = document.body;
+
+        const AUDIO_URL = 'path/to/your/cyberpunk_bg_audio.mp3'; // Placeholder for the actual audio file
+        let bgAudio = new Audio(AUDIO_URL);
+        bgAudio.loop = true;
+        bgAudio.volume = 0.5;
+
+        // Easing function for smooth transitions (must match CSS)
+        const easing = 'cubic-bezier(0.23, 1, 0.320, 1)';
+
+
+        // === 1. INTRO SEQUENCE LOGIC (Three.js & Text) ===
+
+        function initIntro3D() {
+            // Setup Three.js scene for the Intro background (minimal, pulsing effect)
+            const container = document.getElementById('intro-canvas');
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            scene = new THREE.Scene();
+
+            renderer = new THREE.WebGLRenderer({
+                antialias: true,
+                alpha: true
+            });
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+
+            // Create simple, slow-moving particles (as a system)
+            const particleCount = 200;
+            const geometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+            const sizes = new Float32Array(particleCount);
+
+            for (let i = 0; i < particleCount; i++) {
+                positions[i * 3 + 0] = (Math.random() - 0.5) * 10;
+                positions[i * 3 + 1] = (Math.random() - 0.5) * 10;
+                positions[i * 3 + 2] = (Math.random() - 0.5) * 10;
+                sizes[i] = 0.5 + Math.random() * 1.5;
+            }
+
+            geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            geometry.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+            const particleMaterial = new THREE.PointsMaterial({
+                color: 0xd4af37, // Gold accent color
+                size: 0.05,
+                sizeAttenuation: true,
+                transparent: true,
+                opacity: 0.8,
+                blending: THREE.AdditiveBlending,
+            });
+
+            particleSystem = new THREE.Points(geometry, particleMaterial);
+            scene.add(particleSystem);
+            camera.position.z = 5;
+
+            // Animate the intro scene (slow rotation)
+            function introAnimate() {
+                requestAnimationFrame(introAnimate);
+                particleSystem.rotation.y += 0.0005;
+                renderer.render(scene, camera);
+            }
+            introAnimate();
+
+            window.addEventListener('resize', onIntroResize);
+        }
+
+        function onIntroResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // --- Scramble Text Function ---
+
+        function scrambleText(element, finalString, duration = 800) {
+            const chars = '!<>-_\\/[]{}—=+*^?#________';
+            const oldText = element.textContent;
+            const length = Math.max(oldText.length, finalString.length);
+            let queue = [];
+            let frame = 0;
+            let frameRequest;
+            let resolvePromise;
+
+            const promise = new Promise((resolve) => resolvePromise = resolve);
+            element.classList.add('animating');
+
+            for (let i = 0; i < length; i++) {
+                const from = oldText[i] || '';
+                const to = finalString[i] || '';
+                const start = Math.floor(Math.random() * 40);
+                const end = start + Math.floor(Math.random() * 40);
+                queue.push({
+                    from,
+                    to,
+                    start,
+                    end
+                });
+            }
+
+            function update() {
+                let output = '';
+                let complete = 0;
+                for (let i = 0, n = queue.length; i < n; i++) {
+                    let {
+                        from,
+                        to,
+                        start,
+                        end,
+                        char
+                    } = queue[i];
+                    if (frame >= end) {
+                        complete++;
+                        output += to;
+                    } else if (frame >= start) {
+                        if (!char || Math.random() < 0.28) {
+                            char = chars[Math.floor(Math.random() * chars.length)];
+                            queue[i].char = char;
+                        }
+                        // Use <span> to style the scrambled characters with the accent color
+                        output += `<span style="color: var(--accent);">${char}</span>`;
+                    } else {
+                        output += from;
+                    }
+                }
+                element.innerHTML = output;
+
+                if (complete === queue.length) {
+                    element.classList.remove('animating');
+                    cancelAnimationFrame(frameRequest);
+                    resolvePromise();
+                } else {
+                    frameRequest = requestAnimationFrame(update);
+                    frame++;
+                }
+            }
+            update();
+            return promise;
+        }
+
+        // --- Sequence Controller ---
+
+        function showIntroSequence() {
+            if (currentIntroIndex < introTexts.length) {
+                const currentElement = introTexts[currentIntroIndex];
+
+                // 1. Hide the previous element by removing its active class
+                if (currentIntroIndex > 0) {
+                    introTexts[currentIntroIndex - 1].classList.remove('active');
+                }
+
+                // 2. Activate the current element (starts the 5s CSS fadeInOut animation)
+                currentElement.classList.add('active');
+
+                const scrambleTarget = currentElement.querySelector('.scramble-text-story');
+
+                if (scrambleTarget) {
+                    const textToScramble = scrambleTarget.textContent.trim();
+
+                    // Wait for the text to appear (around 0.8s into the 5s CSS animation) before scrambling
+                    setTimeout(() => {
+                        scrambleText(scrambleTarget, textToScramble, 1500).then(() => {
+                            // Scramble finished
+                        });
+                    }, 800);
+                }
+
+                // 3. Set timeout to proceed to the next slide, matching the 5s CSS animation duration
+                introTimeout = setTimeout(() => {
+                    currentIntroIndex++;
+                    showIntroSequence();
+                }, 4800); // 4.8s to ensure the current slide has completed its fade-out before the next one starts
+
+            } else {
+                // All slides finished
+                setTimeout(hideIntro, 1500);
+            }
+        }
+
+        // --- Core Fix: Initialize StoryExperience here ---
+        function hideIntro() {
+            clearTimeout(introTimeout);
+
+            // Fade out the intro container
+            document.getElementById('introContainer').classList.add('hidden');
+
+            // Start the main story experience after the transition finishes
+            setTimeout(() => {
+                const introContainer = document.getElementById('introContainer');
+                if (introContainer) {
+                    introContainer.style.display = 'none';
+                }
+
+                // *** FIX: Initialize StoryExperience here, after intro is gone. ***
+                if (!window.storyExperience) {
+                    window.storyExperience = new StoryExperience();
+                }
+                window.storyExperience.showSection(0); // Show the first section
+
+                // body.style.overflow remains hidden, as navigation is handled by the controller
+            }, 2000);
+        }
+
+        document.getElementById('skipIntro').addEventListener('click', hideIntro);
+
+        function toggleSound() {
+            const soundIcon = document.getElementById('soundIcon');
+            const muteX = soundIcon.querySelector('#muteX');
+            const volumeWaves = soundIcon.querySelector('#volumeWaves');
+
+            if (isMuted) {
+                bgAudio.play().catch(e => console.error("Audio playback failed:", e));
+                if (muteX) muteX.style.display = 'none';
+                if (volumeWaves) volumeWaves.style.display = 'block';
+            } else {
+                bgAudio.pause();
+                if (muteX) muteX.style.display = 'block';
+                if (volumeWaves) volumeWaves.style.display = 'none';
+            }
+            isMuted = !isMuted;
+        }
+        window.toggleSound = toggleSound; // Make it globally accessible for the button
+
+
+        // === 2. STARFIELD BACKGROUND (Three.js) ===
+
+        function initStarfield() {
+            const container = document.getElementById('starfieldCanvas');
+
+            starfieldScene = new THREE.Scene();
+            starfieldCamera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+
+            starfieldRenderer = new THREE.WebGLRenderer({
+                canvas: container,
+                antialias: true,
+                alpha: true
+            });
+            starfieldRenderer.setPixelRatio(window.devicePixelRatio);
+            starfieldRenderer.setSize(window.innerWidth, window.innerHeight);
+
+            // Create Star Geometry
+            const starCount = 1500;
+            const starGeometry = new THREE.BufferGeometry();
+            const starPositions = new Float32Array(starCount * 3);
+            const colors = new Float32Array(starCount * 3);
+            const color1 = new THREE.Color(0xd4af37); // Gold
+            const color2 = new THREE.Color(0xc9ada7); // Light gray
+
+            for (let i = 0; i < starCount; i++) {
+                starPositions[i * 3 + 0] = (Math.random() - 0.5) * 500;
+                starPositions[i * 3 + 1] = (Math.random() - 0.5) * 500;
+                starPositions[i * 3 + 2] = (Math.random() - 0.5) * 500;
+
+                // Randomly assign a color blend
+                const tempColor = new THREE.Color();
+                tempColor.copy(color1).lerp(color2, Math.random());
+                colors[i * 3 + 0] = tempColor.r;
+                colors[i * 3 + 1] = tempColor.g;
+                colors[i * 3 + 2] = tempColor.b;
+            }
+
+            starGeometry.setAttribute('position', new THREE.BufferAttribute(starPositions, 3));
+            starGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+            const starMaterial = new THREE.PointsMaterial({
+                size: 0.2,
+                vertexColors: true,
+                sizeAttenuation: true,
+                transparent: true,
+                opacity: 0.9,
+                blending: THREE.AdditiveBlending
+            });
+
+            const starField = new THREE.Points(starGeometry, starMaterial);
+            starfieldScene.add(starField);
+            starfieldCamera.position.z = 200;
+
+            // Initial animation loop
+            function starfieldAnimate() {
+                requestAnimationFrame(starfieldAnimate);
+
+                // Slight, slow rotation to simulate movement
+                starField.rotation.x += 0.00005;
+                starField.rotation.y += 0.00008;
+
+                starfieldRenderer.render(starfieldScene, starfieldCamera);
+            }
+            starfieldAnimate();
+
+            window.addEventListener('resize', resizeStarfield);
+        }
+
+        function resizeStarfield() {
+            starfieldCamera.aspect = window.innerWidth / window.innerHeight;
+            starfieldCamera.updateProjectionMatrix();
+            starfieldRenderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+
+        // === 3. STORY EXPERIENCE CONTROLLER (Scroll & Navigation) ===
+
+        class StoryExperience {
+            constructor() {
+                this.sections = document.querySelectorAll('.content-section');
+                this.totalSections = this.sections.length;
+                this.currentSection = 0; // Starts at index 0 (Hero)
+                this.isTransitioning = false;
+                this.rulerMarkers = document.getElementById('rulerMarkers');
+                this.rulerIndicator = document.getElementById('rulerIndicator');
+                this.progressText = document.getElementById('progressText');
+
+                this.initRuler();
+                this.initEventListeners();
+                // showSection(0) is now called from hideIntro() to ensure it runs after the intro is gone
+            }
+
+            initRuler() {
+                this.sections.forEach((section, index) => {
+                    const marker = document.createElement('div');
+                    marker.className = 'ruler-marker';
+                    // Position evenly down the track
+                    marker.style.top = `${(index / (this.totalSections - 1)) * 100}%`;
+                    marker.onclick = () => this.showSection(index);
+                    this.rulerMarkers.appendChild(marker);
+                });
+                this.rulerMarkersElements = document.querySelectorAll('.ruler-marker');
+            }
+
+            initEventListeners() {
+                // Keyboard navigation
+                document.addEventListener('keydown', (e) => {
+                    // Only respond if the story is active (i.e., intro is gone)
+                    if (document.getElementById('introContainer').classList.contains('hidden')) {
+                        if (e.key === 'ArrowDown' || e.key === 'PageDown' || e.key === ' ' || e.key === 'Enter') {
+                            e.preventDefault();
+                            this.nextSection();
+                        } else if (e.key === 'ArrowUp' || e.key === 'PageUp') {
+                            e.preventDefault();
+                            this.prevSection();
+                        }
+                    }
+                });
+
+                // Wheel navigation (debounce for smooth transitions)
+                let lastScrollTime = 0;
+                document.addEventListener('wheel', (e) => {
+                    // Only respond if the story is active
+                    if (document.getElementById('introContainer').classList.contains('hidden')) {
+                        e.preventDefault(); // Stop default vertical scrolling
+
+                        const now = new Date().getTime();
+                        // Throttle the scroll event to prevent rapid firing
+                        if (this.isTransitioning || (now - lastScrollTime < 700)) {
+                            return;
+                        }
+
+                        if (e.deltaY > 0) {
+                            this.nextSection();
+                        } else if (e.deltaY < 0) {
+                            this.prevSection();
+                        }
+                        lastScrollTime = now;
+                    }
+                }, {
+                    passive: false
+                });
+
+                // Add window function references for HTML buttons
+                window.storyExperience = this;
+            }
+
+            updateRulerAndProgress() {
+                // Update marker highlight
+                this.rulerMarkersElements.forEach((marker, index) => {
+                    marker.classList.toggle('active', index === this.currentSection);
+                });
+
+                // Update ruler indicator position
+                const indicatorPos = (this.currentSection / (this.totalSections - 1)) * 100;
+                this.rulerIndicator.style.top = `${indicatorPos}%`;
+
+                // Update progress bar
+                const progress = indicatorPos;
+                document.getElementById('storyProgress').style.width = `${progress}%`;
+
+                // Get the data-label and update the HUD progress text
+                const currentLabel = this.sections[this.currentSection].dataset.label;
+                const sectionNumber = this.currentSection < 10 ? '0' + this.currentSection : this.currentSection;
+                this.progressText.textContent = `PROTOCOL ${sectionNumber}: ${currentLabel}`;
+            }
+
+            showSection(index, animated = true) {
+                if (index < 0 || index >= this.totalSections || this.isTransitioning || index === this.currentSection) {
+                    return;
+                }
+
+                this.isTransitioning = true;
+                const oldSection = this.sections[this.currentSection];
+                const newSection = this.sections[index];
+
+                // 1. Hide old section
+                oldSection.classList.remove('active');
+
+                // 2. Wait for transition to complete, then show new section
+                // Transition duration is set in CSS to 0.6s
+                setTimeout(() => {
+                    this.currentSection = index;
+
+                    // Trigger Scramble text on section title when it becomes active
+                    const scrambleTarget = newSection.querySelector('.section-title .scramble-text');
+                    if (scrambleTarget) {
+                        const textToScramble = scrambleTarget.textContent.trim();
+                        scrambleText(scrambleTarget, textToScramble, 1000);
+                    }
+
+                    // Also trigger scramble on the hero button in section 0
+                    if (index === 0) {
+                        const heroButtonText = newSection.querySelector('.hero-button .scramble-text');
+                        if (heroButtonText) {
+                            const textToScramble = heroButtonText.textContent.trim();
+                            scrambleText(heroButtonText, textToScramble, 800);
+                        }
+                    }
+
+                    newSection.classList.add('active');
+                    this.updateRulerAndProgress();
+                    this.isTransitioning = false;
+                }, animated ? 300 : 0);
+            }
+
+            nextSection() {
+                if (this.currentSection < this.totalSections - 1) {
+                    this.showSection(this.currentSection + 1);
+                }
+            }
+
+            prevSection() {
+                if (this.currentSection > 0) {
+                    this.showSection(this.currentSection - 1);
+                }
+            }
+
+            navigateToSection(index) {
+                this.showSection(index);
+            }
+        }
+
+        // === 4. INITIALIZATION ===
+
+        window.addEventListener('DOMContentLoaded', () => {
+            initIntro3D(); // Sets up intro scene and renderer
+            initStarfield(); // Sets up main background starfield
+
+            // Start the introductory cinematic sequence
+            setTimeout(showIntroSequence, 1200);
+
+            // Show the skip button after a short delay
+            setTimeout(() => {
+                const skipButton = document.querySelector('.skip-button');
+                if (skipButton) skipButton.classList.add('visible');
+            }, 3000);
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1962 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Global Gateway - Study Abroad & International Opportunities | ReIgnitia</title>
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Three.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <style>
+        :root {
+            --primary: #32b8c6;
+            --primary-dark: #2d9fb2;
+            --accent-purple: #9b6bcc;
+            --accent-gold: #fbbf24;
+            --accent-warm: #e68161;
+            --bg-dark: #0a1628;
+            --bg-medium: #132238;
+            --bg-light: #1a2d47;
+            --text: #e8f1f5;
+            --text-dim: #a7b8c4;
+            --text-muted: #6b7c8c;
+            --glass: rgba(26, 45, 71, 0.6);
+            --border: rgba(50, 184, 198, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            height: 100%;
+            font-family: 'Inter', system-ui, sans-serif;
+            background: var(--bg-dark);
+            color: var(--text);
+            overflow-x: hidden;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            cursor: none;
+        }
+
+        /* Custom Cursor */
+        .custom-cursor {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--primary);
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 10000;
+            mix-blend-mode: difference;
+            transition: transform 0.2s ease;
+        }
+
+        .custom-cursor.hover {
+            transform: scale(1.5);
+            background: var(--primary);
+        }
+
+        /* Background Canvas */
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            pointer-events: none;
+        }
+
+        .main-container {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+        }
+
+        /* Navigation */
+        .nav-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 20px 40px;
+            background: rgba(10, 22, 40, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--border);
+            transition: transform 0.3s ease;
+        }
+
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .nav-logo {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .nav-logo:hover {
+            color: var(--primary);
+        }
+
+        .nav-back {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            text-decoration: none;
+            border-radius: 6px;
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-back:hover {
+            background: var(--glass);
+            border-color: var(--primary);
+            color: var(--primary);
+            transform: translateX(-4px);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 120px 40px 80px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 20% 30%, rgba(50, 184, 198, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(155, 107, 204, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-subtitle {
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--accent-purple);
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease 0.2s forwards;
+        }
+
+        .hero-title {
+            font-family: 'Playfair Display', serif;
+            font-size: clamp(3rem, 6vw, 5rem);
+            font-weight: 700;
+            line-height: 1.1;
+            margin-bottom: 30px;
+            letter-spacing: -2px;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease 0.4s forwards;
+        }
+
+        .hero-description {
+            font-size: 20px;
+            line-height: 1.6;
+            color: var(--text-dim);
+            margin-bottom: 40px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease 0.6s forwards;
+        }
+
+        .hero-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease 0.8s forwards;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-family: 'Space Mono', monospace;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            display: block;
+            line-height: 1;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-top: 8px;
+        }
+
+        /* Section Styles */
+        .content-section {
+            padding: 100px 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .section-header {
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 60px;
+            margin-bottom: 60px;
+            align-items: start;
+        }
+
+        .section-number {
+            font-family: 'Space Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: var(--primary);
+            position: sticky;
+            top: 140px;
+        }
+
+        .section-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 3rem;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .section-description {
+            font-size: 18px;
+            line-height: 1.7;
+            color: var(--text-dim);
+            margin-top: 20px;
+        }
+
+        /* Feature Cards */
+        .feature-card {
+            background: var(--glass);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 40px;
+            backdrop-filter: blur(20px);
+            transition: all 0.4s ease;
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 40px;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.25), rgba(0, 0, 0, 0.15));
+            z-index: -1;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--primary);
+            box-shadow: 0 30px 60px rgba(50, 184, 198, 0.2);
+        }
+
+        .feature-card-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .feature-card-text {
+            font-size: 17px;
+            line-height: 1.7;
+            color: var(--text-dim);
+            position: relative;
+            z-index: 1;
+            margin-bottom: 20px;
+        }
+
+        /* Canvas Container */
+        .canvas-container {
+            background: rgba(50, 184, 198, 0.02);
+            border: 1px solid rgba(50, 184, 198, 0.2);
+            border-radius: 12px;
+            position: relative;
+            margin: 30px 0;
+            overflow: hidden;
+        }
+
+        .canvas-3d {
+            width: 100%;
+            height: 600px;
+            display: block;
+            cursor: grab;
+        }
+
+        .canvas-3d:active {
+            cursor: grabbing;
+        }
+
+        /* Tool Container */
+        .tool-container {
+            background: rgba(50, 184, 198, 0.02);
+            border: 1px solid rgba(50, 184, 198, 0.2);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-family: 'Space Mono', monospace;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--bg-dark);
+        }
+
+        .btn-primary:hover {
+            background: #28a3b0;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(50, 184, 198, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid var(--border);
+            color: var(--text);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        /* Links */
+        .resource-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: gap 0.3s ease;
+            margin-right: 20px;
+            margin-top: 10px;
+        }
+
+        .resource-link:hover {
+            gap: 12px;
+        }
+
+        .resource-link::after {
+            content: '→';
+        }
+
+        /* Animations */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .section-header {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .hero-stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .nav-header {
+                padding: 15px 20px;
+            }
+
+            .hero {
+                padding: 100px 20px 60px;
+            }
+
+            .content-section {
+                padding: 60px 20px;
+            }
+
+            .hero-title {
+                font-size: 2.5rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .hero-stats {
+                grid-template-columns: 1fr;
+            }
+
+            .canvas-3d {
+                height: 400px;
+            }
+        }
+
+        /* --- START OVERLAY STYLES --- */
+        #preview-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+            /* Blur + dark overlay over the existing page */
+            backdrop-filter: blur(10px);
+            background-color: rgba(0, 0, 0, 0.45);
+
+            opacity: 1;
+            transition: opacity 0.3s ease;
+        }
+
+        /* The card inside the overlay */
+        .preview-card {
+            background: rgba(10, 22, 40, 0.98);
+            border-radius: 16px;
+            padding: 32px 28px;
+            max-width: 520px;
+            width: 90%;
+            text-align: center;
+            border: 1px solid var(--border);
+            box-shadow: 0 24px 60px rgba(0, 0, 0, 0.7);
+        }
+
+        /* Icon wrapper */
+        .preview-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            background: rgba(251, 191, 36, 0.1);
+            color: #fbbf24;
+        }
+
+        /* Title + text */
+        .preview-title {
+            font-family: 'Playfair Display', serif;
+            font-size: 1.8rem;
+            margin-bottom: 12px;
+            color: var(--text);
+        }
+
+        .preview-text {
+            font-size: 0.95rem;
+            line-height: 1.7;
+            color: var(--text-dim);
+            margin-bottom: 22px;
+        }
+
+        /* Button row */
+        .preview-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+        }
+
+        .preview-buttons .btn {
+            min-width: 180px;
+        }
+
+        /* When JS adds this class, the overlay really disappears */
+        .hidden {
+            display: none !important;
+        }
+
+        /* --- END OVERLAY STYLES --- */
+    </style>
+</head>
+
+<body>
+    <div class="custom-cursor" id="cursor"></div>
+    <canvas id="bg-canvas"></canvas>
+
+
+    <!-- DESIGN PREVIEW OVERLAY -->
+    <div id="preview-overlay">
+        <div class="preview-card">
+            <div class="preview-icon">
+                <!-- Warning triangle icon -->
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true">
+                    <path
+                        d="M12 9v4m0 4h.01M4.47 19h15.06c1.2 0 1.96-1.3 1.36-2.33L13.36 5.34c-.6-1.03-2.12-1.03-2.72 0L3.11 16.67C2.51 17.7 3.27 19 4.47 19z"
+                        stroke="#FBBF24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+            </div>
+
+            <h2 class="preview-title">Design Preview Only</h2>
+
+            <p class="preview-text">
+                This page currently shows the <strong>front-end design</strong> only.<br>
+                You can explore the layout and the features that will exist here in the future,
+                but the backend (saving data, real-time updates, authentication, etc.) is
+                <strong>not wired up yet</strong>.
+            </p>
+
+            <div class="preview-buttons">
+                <!-- See Page Button (Dismisses Overlay) -->
+                <button id="see-page-btn" class="btn btn-primary">
+                    See Page Features
+                </button>
+
+                <!-- Go Back Button (Navigates Away) -->
+                <button id="go-back-btn" class="btn btn-secondary">
+                    Go Back to Dashboard
+                </button>
+            </div>
+        </div>
+    </div>
+    <!-- END DESIGN PREVIEW OVERLAY -->
+
+
+    <div class="main-container">
+        <!-- Navigation -->
+        <nav class="nav-header">
+            <div class="nav-content">
+                <a href="../" class="nav-logo">ReIgnitia</a>
+                <a href="../dashboard" class="nav-back">← Back to Dashboard</a>
+            </div>
+        </nav>
+
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <div class="hero-subtitle">Study Abroad & International Opportunities</div>
+                <h1 class="hero-title">Global Gateway</h1>
+                <p class="hero-description">
+                    Interactive 3D globe with study abroad programs worldwide. Filter by country, cost, language, and
+                    duration. Compare programs side by side. Cultural preparation resources and visa checklists. Connect
+                    with exchange students. Your journey starts here.
+                </p>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number">2000+</span>
+                        <span class="stat-label">Programs</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">100+</span>
+                        <span class="stat-label">Countries</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">Free</span>
+                        <span class="stat-label">Resources</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number">Real</span>
+                        <span class="stat-label">Student Stories</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Section 1: Study Abroad Explorer -->
+        <section class="content-section">
+            <div class="section-header">
+                <div class="section-number">01 / Explorer</div>
+                <div>
+                    <h2 class="section-title">Study Abroad Explorer</h2>
+                    <p class="section-description">
+                        Interactive 3D globe showing programs worldwide. Click on countries to see available
+                        opportunities. Filter by cost, language, duration, and subject. Student testimonials and
+                        cultural guides included.
+                    </p>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Interactive 3D Globe</h3>
+                <p class="feature-card-text">
+                    Explore study abroad destinations with an interactive 3D globe. Red markers show popular
+                    destinations. Blue markers show emerging destinations. Click any marker to view programs in that
+                    country.
+                </p>
+                <div class="canvas-container">
+                    <canvas id="globe-canvas" class="canvas-3d"></canvas>
+                    <div
+                        style="position: absolute; top: 20px; left: 20px; background: rgba(10, 22, 40, 0.9); padding: 20px; border-radius: 12px; backdrop-filter: blur(20px);">
+                        <h4 style="color: var(--primary); margin-bottom: 15px; font-size: 16px;">Filters</h4>
+                        <div style="display: grid; gap: 15px;">
+                            <div>
+                                <label
+                                    style="display: block; color: var(--text-dim); margin-bottom: 8px; font-size: 13px;">Region:</label>
+                                <select id="region-filter"
+                                    style="width: 200px; padding: 8px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 13px;">
+                                    <option>All Regions</option>
+                                    <option>Europe</option>
+                                    <option>Asia</option>
+                                    <option>North America</option>
+                                    <option>South America</option>
+                                    <option>Africa</option>
+                                    <option>Oceania</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label
+                                    style="display: block; color: var(--text-dim); margin-bottom: 8px; font-size: 13px;">Program
+                                    Cost:</label>
+                                <select id="cost-filter"
+                                    style="width: 200px; padding: 8px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 13px;">
+                                    <option>Any Cost</option>
+                                    <option>Under $5,000</option>
+                                    <option>$5,000 - $10,000</option>
+                                    <option>$10,000 - $20,000</option>
+                                    <option>Over $20,000</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label
+                                    style="display: block; color: var(--text-dim); margin-bottom: 8px; font-size: 13px;">Duration:</label>
+                                <select id="duration-filter"
+                                    style="width: 200px; padding: 8px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 13px;">
+                                    <option>Any Duration</option>
+                                    <option>Summer (6-8 weeks)</option>
+                                    <option>Semester (3-4 months)</option>
+                                    <option>Academic Year (9-10 months)</option>
+                                    <option>Full Degree Program</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <a href="https://www.goabroad.com/study-abroad" target="_blank" class="resource-link">GoAbroad
+                        Programs</a>
+                    <a href="https://www.iie.org/programs/generation-study-abroad/" target="_blank"
+                        class="resource-link">IIE Study Abroad</a>
+                    <a href="https://www.ciee.org/go-abroad/college-study-abroad/programs" target="_blank"
+                        class="resource-link">CIEE Programs</a>
+                    <a href="https://www.abroadview.org" target="_blank" class="resource-link">Abroad View</a>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Search Programs by Country</h3>
+                <p class="feature-card-text">
+                    Browse programs by destination. Each country page shows available programs, costs, language
+                    requirements, and student reviews. Find the perfect match for your goals.
+                </p>
+                <div class="tool-container">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                        <div style="background: rgba(26, 45, 71, 0.5); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s ease;"
+                            onmouseover="this.style.borderColor='var(--primary)'"
+                            onmouseout="this.style.borderColor='var(--border)'">
+                            <div style="font-size: 3rem; margin-bottom: 10px;">🇬🇧</div>
+                            <h4 style="color: var(--primary); margin-bottom: 8px;">United Kingdom</h4>
+                            <p style="font-size: 13px; color: var(--text-dim);">450+ programs | English</p>
+                        </div>
+                        <div style="background: rgba(26, 45, 71, 0.5); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s ease;"
+                            onmouseover="this.style.borderColor='var(--primary)'"
+                            onmouseout="this.style.borderColor='var(--border)'">
+                            <div style="font-size: 3rem; margin-bottom: 10px;">🇪🇸</div>
+                            <h4 style="color: var(--primary); margin-bottom: 8px;">Spain</h4>
+                            <p style="font-size: 13px; color: var(--text-dim);">380+ programs | Spanish</p>
+                        </div>
+                        <div style="background: rgba(26, 45, 71, 0.5); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s ease;"
+                            onmouseover="this.style.borderColor='var(--primary)'"
+                            onmouseout="this.style.borderColor='var(--border)'">
+                            <div style="font-size: 3rem; margin-bottom: 10px;">🇮🇹</div>
+                            <h4 style="color: var(--primary); margin-bottom: 8px;">Italy</h4>
+                            <p style="font-size: 13px; color: var(--text-dim);">320+ programs | Italian</p>
+                        </div>
+                        <div style="background: rgba(26, 45, 71, 0.5); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s ease;"
+                            onmouseover="this.style.borderColor='var(--primary)'"
+                            onmouseout="this.style.borderColor='var(--border)'">
+                            <div style="font-size: 3rem; margin-bottom: 10px;">🇫🇷</div>
+                            <h4 style="color: var(--primary); margin-bottom: 8px;">France</h4>
+                            <p style="font-size: 13px; color: var(--text-dim);">290+ programs | French</p>
+                        </div>
+                        <div style="background: rgba(26, 45, 71, 0.5); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s ease;"
+                            onmouseover="this.style.borderColor='var(--primary)'"
+                            onmouseout="this.style.borderColor='var(--border)'">
+                            <div style="font-size: 3rem; margin-bottom: 10px;">🇩🇪</div>
+                            <h4 style="color: var(--primary); margin-bottom: 8px;">Germany</h4>
+                            <p style="font-size: 13px; color: var(--text-dim);">270+ programs | German</p>
+                        </div>
+                        <div style="background: rgba(26, 45, 71, 0.5); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s ease;"
+                            onmouseover="this.style.borderColor='var(--primary)'"
+                            onmouseout="this.style.borderColor='var(--border)'">
+                            <div style="font-size: 3rem; margin-bottom: 10px;">🇦🇺</div>
+                            <h4 style="color: var(--primary); margin-bottom: 8px;">Australia</h4>
+                            <p style="font-size: 13px; color: var(--text-dim);">240+ programs | English</p>
+                        </div>
+                        <div style="background: rgba(26, 45, 71, 0.5); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s ease;"
+                            onmouseover="this.style.borderColor='var(--primary)'"
+                            onmouseout="this.style.borderColor='var(--border)'">
+                            <div style="font-size: 3rem; margin-bottom: 10px;">🇯🇵</div>
+                            <h4 style="color: var(--primary); margin-bottom: 8px;">Japan</h4>
+                            <p style="font-size: 13px; color: var(--text-dim);">210+ programs | Japanese</p>
+                        </div>
+                        <div style="background: rgba(26, 45, 71, 0.5); border: 1px solid var(--border); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s ease;"
+                            onmouseover="this.style.borderColor='var(--primary)'"
+                            onmouseout="this.style.borderColor='var(--border)'">
+                            <div style="font-size: 3rem; margin-bottom: 10px;">🇨🇦</div>
+                            <h4 style="color: var(--primary); margin-bottom: 8px;">Canada</h4>
+                            <p style="font-size: 13px; color: var(--text-dim);">180+ programs | English/French</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Student Testimonials</h3>
+                <p class="feature-card-text">
+                    Hear from students who studied abroad. Learn about their experiences, challenges, and advice. Real
+                    stories help you prepare for your own journey.
+                </p>
+                <div class="tool-container">
+                    <div
+                        style="background: rgba(50, 184, 198, 0.05); border-left: 4px solid var(--primary); padding: 25px; margin-bottom: 20px; border-radius: 8px;">
+                        <h4 style="color: var(--primary); margin-bottom: 10px;">Emma L. - Semester in Barcelona, Spain
+                        </h4>
+                        <p style="color: var(--text-dim); line-height: 1.7; margin-bottom: 10px;">"Studying in Barcelona
+                            changed my life. I became fluent in Spanish, made friends from 15 countries, and discovered
+                            a passion for international business. The city is beautiful and affordable. Highly recommend
+                            CIEE Barcelona program."</p>
+                        <p style="color: var(--text-muted); font-size: 13px;">Business Major | University of Texas |
+                            Fall 2024</p>
+                    </div>
+                    <div
+                        style="background: rgba(50, 184, 198, 0.05); border-left: 4px solid var(--primary); padding: 25px; margin-bottom: 20px; border-radius: 8px;">
+                        <h4 style="color: var(--primary); margin-bottom: 10px;">James K. - Year in Tokyo, Japan</h4>
+                        <p style="color: var(--text-dim); line-height: 1.7; margin-bottom: 10px;">"Tokyo was intense but
+                            amazing. The cultural differences pushed me out of my comfort zone. I learned Japanese,
+                            tried new foods, and gained confidence. My host family was incredibly welcoming. Come with
+                            an open mind and willingness to adapt."</p>
+                        <p style="color: var(--text-muted); font-size: 13px;">Engineering Major | MIT | Academic Year
+                            2023-2024</p>
+                    </div>
+                    <div
+                        style="background: rgba(50, 184, 198, 0.05); border-left: 4px solid var(--primary); padding: 25px; border-radius: 8px;">
+                        <h4 style="color: var(--primary); margin-bottom: 10px;">Sofia M. - Summer in Florence, Italy
+                        </h4>
+                        <p style="color: var(--text-dim); line-height: 1.7; margin-bottom: 10px;">"Eight weeks in
+                            Florence felt too short. I took art history classes in actual museums and cathedrals.
+                            Weekend trips to Rome, Venice, and Cinque Terre were unforgettable. The food, art, and
+                            people made this the best summer of my life."</p>
+                        <p style="color: var(--text-muted); font-size: 13px;">Art History Major | Smith College | Summer
+                            2024</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 2: Program Comparison Tool -->
+        <section class="content-section">
+            <div class="section-header">
+                <div class="section-number">02 / Compare</div>
+                <div>
+                    <h2 class="section-title">Program Comparison Tool</h2>
+                    <p class="section-description">
+                        Compare programs side by side. See costs, credits, housing, requirements at a glance. ROI
+                        calculator shows experience value versus expense. Scholarship availability highlighted for each
+                        program.
+                    </p>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Side-by-Side Comparison</h3>
+                <p class="feature-card-text">
+                    Select up to three programs to compare. View differences in cost, duration, credits, housing, and
+                    eligibility. Make informed decisions based on your priorities and budget.
+                </p>
+                <div class="tool-container">
+                    <div style="overflow-x: auto;">
+                        <table style="width: 100%; border-collapse: collapse; min-width: 800px;">
+                            <thead>
+                                <tr style="background: rgba(26, 45, 71, 0.5);">
+                                    <th
+                                        style="padding: 15px; text-align: left; border-bottom: 2px solid var(--border);">
+                                        Feature</th>
+                                    <th
+                                        style="padding: 15px; text-align: left; border-bottom: 2px solid var(--border);">
+                                        Program A<br><span
+                                            style="font-size: 12px; font-weight: normal; color: var(--text-dim);">CIEE
+                                            Barcelona</span></th>
+                                    <th
+                                        style="padding: 15px; text-align: left; border-bottom: 2px solid var(--border);">
+                                        Program B<br><span
+                                            style="font-size: 12px; font-weight: normal; color: var(--text-dim);">IES
+                                            Rome</span></th>
+                                    <th
+                                        style="padding: 15px; text-align: left; border-bottom: 2px solid var(--border);">
+                                        Program C<br><span
+                                            style="font-size: 12px; font-weight: normal; color: var(--text-dim);">API
+                                            Paris</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td
+                                        style="padding: 12px; border-bottom: 1px solid var(--border); color: var(--text-dim); font-weight: 600;">
+                                        Total Cost</td>
+                                    <td
+                                        style="padding: 12px; border-bottom: 1px solid var(--border); color: var(--text);">
+                                        $15,000</td>
+                                    <td
+                                        style="padding: 12px; border-bottom: 1px solid var(--border); color: var(--text);">
+                                        $18,500</td>
+                                    <td
+                                        style="padding: 12px; border-bottom: 1px solid var(--border); color: var(--text);">
+                                        $19,200</td>
+                                </tr>
+                                <tr>
+                                    <td
+                                        style="padding: 12px; border-bottom: 1px solid var(--border); color: var(--text-dim); font-weight: 600;">
+                                        Duration</td>
+                                    <td
+                                        style="padding: 12px; border-bottom: 1px solid var(--border); color: var(--text);">
+                                        Semester (15 weeks)</td>
+                                    <td
+                                        style="padding: 12px; border-bottom: 1px solid var(--border); color: var(--text);">
+                                        Semester (16 weeks)</td>
+                                    <td
+                                        style="padding: 12px; border-bottom: 1px solid var(--border); color: var(--text);">
+                                        Semester (14 weeks)</td>
+                                </tr>
+                                <tr>
+                                    <td
+                                        style="padding: 12px; border-bottom: 1px solid var(--border); color: var(--text-dim); font-weight: 600;">
+                                        Credits</td>
+                                    <td
+                                        style="padding: 12px; border-bottom: 1px solid var(--border); color: var(--text);">
+                                        12-18 credits</td>
+                                    <td
+                                        style="padding: 12px; border-bottom: 1px solid var(--border); color: var(--text);">
+                                        15-18 credits</td>
+                                    <td
+                                        style="padding: 12px; border-bottom: 1px solid var(--border); color: var(--text);">
+                                        12-16 credits</td>
+                                </tr>
+                                <tr>
+                                    <td
+                                        style="padding: 12px; border-bottom: 1px solid var(--border); color: var(--text-dim); font-weight: 600;">
+                                        Housing</td>
+                                    <td
+                                        style="padding: 12px; border-bottom: 1px solid var(--border); color: var(--text);">
+                                        Shared apartment</td>
+                                    <td
+                                        style="padding: 12px; border-bottom: 1px solid var(--border); color: var(--text);">
+                                        Host family</td>
+                                    <td
+                                        style="padding: 12px; border-bottom: 1px solid var(--border); color: var(--text);">
+                                        Residence hall</td>
+                                </tr>
+                                <tr>
+                                    <td
+                                        style="padding: 12px; border-bottom: 1px solid var(--border); color: var(--text-dim); font-weight: 600;">
+                                        Meals Included</td>
+                                    <td
+                                        style="padding: 12px; border-bottom: 1px solid var(--border); color: var(--text);">
+                                        No</td>
+                                    <td
+                                        style="padding: 12px; border-bottom: 1px solid var(--border); color: var(--text);">
+                                        Breakfast & Dinner</td>
+                                    <td
+                                        style="padding: 12px; border-bottom: 1px solid var(--border); color: var(--text);">
+                                        Meal plan optional</td>
+                                </tr>
+                                <tr>
+                                    <td
+                                        style="padding: 12px; border-bottom: 1px solid var(--border); color: var(--text-dim); font-weight: 600;">
+                                        Language Requirement</td>
+                                    <td
+                                        style="padding: 12px; border-bottom: 1px solid var(--border); color: var(--text);">
+                                        None (English courses)</td>
+                                    <td
+                                        style="padding: 12px; border-bottom: 1px solid var(--border); color: var(--text);">
+                                        1 year Italian</td>
+                                    <td
+                                        style="padding: 12px; border-bottom: 1px solid var(--border); color: var(--text);">
+                                        2 years French</td>
+                                </tr>
+                                <tr>
+                                    <td
+                                        style="padding: 12px; border-bottom: 1px solid var(--border); color: var(--text-dim); font-weight: 600;">
+                                        GPA Minimum</td>
+                                    <td
+                                        style="padding: 12px; border-bottom: 1px solid var(--border); color: var(--text);">
+                                        2.75</td>
+                                    <td
+                                        style="padding: 12px; border-bottom: 1px solid var(--border); color: var(--text);">
+                                        3.0</td>
+                                    <td
+                                        style="padding: 12px; border-bottom: 1px solid var(--border); color: var(--text);">
+                                        3.0</td>
+                                </tr>
+                                <tr>
+                                    <td
+                                        style="padding: 12px; border-bottom: 1px solid var(--border); color: var(--text-dim); font-weight: 600;">
+                                        Scholarships Available</td>
+                                    <td style="padding: 12px; border-bottom: 1px solid var(--border);"><span
+                                            style="color: var(--primary);">✓ Yes</span></td>
+                                    <td style="padding: 12px; border-bottom: 1px solid var(--border);"><span
+                                            style="color: var(--primary);">✓ Yes</span></td>
+                                    <td style="padding: 12px; border-bottom: 1px solid var(--border);"><span
+                                            style="color: var(--primary);">✓ Yes</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">ROI Calculator</h3>
+                <p class="feature-card-text">
+                    Calculate return on investment for study abroad. Compare program costs to career benefits, language
+                    skills gained, and personal growth. Many employers value international experience at $5,000-$10,000
+                    in salary.
+                </p>
+                <div class="tool-container">
+                    <div style="display: grid; gap: 20px; margin-bottom: 30px;">
+                        <div>
+                            <label
+                                style="display: block; color: var(--text-dim); margin-bottom: 8px; font-size: 14px;">Program
+                                Cost:</label>
+                            <input type="number" id="program-cost" value="15000"
+                                style="width: 100%; padding: 12px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px;">
+                        </div>
+                        <div>
+                            <label
+                                style="display: block; color: var(--text-dim); margin-bottom: 8px; font-size: 14px;">Expected
+                                Salary Increase:</label>
+                            <select id="salary-increase"
+                                style="width: 100%; padding: 12px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px;">
+                                <option value="5000">$5,000/year (Average)</option>
+                                <option value="7500">$7,500/year (High demand field)</option>
+                                <option value="10000">$10,000/year (International career)</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" id="calculate-roi">Calculate ROI</button>
+                    <div id="roi-results" style="display: none; margin-top: 30px;">
+                        <canvas id="roi-chart" style="max-height: 300px;"></canvas>
+                        <div
+                            style="margin-top: 20px; padding: 20px; background: rgba(50, 184, 198, 0.1); border-radius: 8px; text-align: center;">
+                            <p style="color: var(--text-dim); margin-bottom: 10px;">Break-even time:</p>
+                            <p id="breakeven-time"
+                                style="font-family: 'Space Mono', monospace; font-size: 2rem; color: var(--primary);">0
+                                years</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <!-- Section 3: Cultural Preparation -->
+        <section class="content-section">
+            <div class="section-header">
+                <div class="section-number">03 / Preparation</div>
+                <div>
+                    <h2 class="section-title">Cultural Preparation</h2>
+                    <p class="section-description">
+                        Language learning resources with free Duolingo integration. Cultural etiquette guides by
+                        country. Visa application checklists with step-by-step instructions. Packing lists and travel
+                        tips from experienced students.
+                    </p>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Language Learning Resources</h3>
+                <p class="feature-card-text">
+                    Start learning the local language before you go. Even basic phrases help you connect with locals and
+                    navigate daily life. Free resources make language learning accessible to everyone.
+                </p>
+                <div style="margin-top: 20px;">
+                    <a href="https://www.duolingo.com" target="_blank" class="resource-link">Duolingo (Free)</a>
+                    <a href="https://www.memrise.com" target="_blank" class="resource-link">Memrise</a>
+                    <a href="https://www.busuu.com" target="_blank" class="resource-link">Busuu</a>
+                    <a href="https://www.babbel.com" target="_blank" class="resource-link">Babbel</a>
+                    <a href="https://www.youtube.com/results?search_query=learn+spanish" target="_blank"
+                        class="resource-link">YouTube Language Lessons</a>
+                    <a href="https://www.lingq.com" target="_blank" class="resource-link">LingQ</a>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Cultural Etiquette Guides</h3>
+                <p class="feature-card-text">
+                    Learn cultural norms before arrival. Understand greetings, dining customs, personal space,
+                    gift-giving, and business etiquette. Avoid unintentional offense and build positive relationships.
+                </p>
+                <div class="tool-container">
+                    <div style="display: grid; gap: 20px;">
+                        <div style="background: rgba(26, 45, 71, 0.5); border-radius: 12px; padding: 25px;">
+                            <h4 style="color: var(--primary); margin-bottom: 15px;">Japan Cultural Tips</h4>
+                            <ul style="color: var(--text-dim); line-height: 1.8; margin-left: 20px;">
+                                <li>Remove shoes when entering homes and some restaurants</li>
+                                <li>Bow when greeting people (deeper bow shows more respect)</li>
+                                <li>Use both hands when giving or receiving business cards</li>
+                                <li>Avoid eating while walking in public</li>
+                                <li>Stand on left side of escalators (right side for walking)</li>
+                                <li>Speak quietly on trains and public transportation</li>
+                            </ul>
+                        </div>
+                        <div style="background: rgba(26, 45, 71, 0.5); border-radius: 12px; padding: 25px;">
+                            <h4 style="color: var(--primary); margin-bottom: 15px;">Spain Cultural Tips</h4>
+                            <ul style="color: var(--text-dim); line-height: 1.8; margin-left: 20px;">
+                                <li>Lunch is main meal (2-3 PM), dinner late (9-10 PM)</li>
+                                <li>Greet with two kisses on cheeks (right cheek first)</li>
+                                <li>Siestas are real - many shops close 2-5 PM</li>
+                                <li>Tipping not expected but appreciated (round up bill)</li>
+                                <li>Speak Spanish when possible, locals appreciate effort</li>
+                                <li>Social life centers around plazas and tapas bars</li>
+                            </ul>
+                        </div>
+                        <div style="background: rgba(26, 45, 71, 0.5); border-radius: 12px; padding: 25px;">
+                            <h4 style="color: var(--primary); margin-bottom: 15px;">United Kingdom Cultural Tips</h4>
+                            <ul style="color: var(--text-dim); line-height: 1.8; margin-left: 20px;">
+                                <li>Queue (line up) properly - cutting in line is rude</li>
+                                <li>Say "please," "thank you," and "sorry" frequently</li>
+                                <li>Pubs are social centers - buying rounds is common</li>
+                                <li>Tipping 10-15% in restaurants if service not included</li>
+                                <li>Small talk about weather is normal conversation starter</li>
+                                <li>Personal space important - avoid physical contact</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <a href="https://www.commisceo-global.com/country-guides" target="_blank"
+                        class="resource-link">Country Culture Guides</a>
+                    <a href="https://www.culturecrossing.net" target="_blank" class="resource-link">Culture Crossing</a>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Visa Application Checklists</h3>
+                <p class="feature-card-text">
+                    Step-by-step visa application guides for popular study destinations. Required documents, processing
+                    times, fees, and interview tips. Start applications 3-6 months before departure.
+                </p>
+                <div class="tool-container">
+                    <div
+                        style="background: rgba(50, 184, 198, 0.05); border-radius: 12px; padding: 25px; margin-bottom: 20px;">
+                        <h4 style="color: var(--primary); margin-bottom: 15px;">Student Visa Requirements (General)</h4>
+                        <div style="display: grid; gap: 12px;">
+                            <label style="display: flex; align-items: start; gap: 12px; color: var(--text-dim);">
+                                <input type="checkbox"
+                                    style="margin-top: 4px; width: 18px; height: 18px; accent-color: var(--primary);">
+                                <span>Valid passport (6+ months validity)</span>
+                            </label>
+                            <label style="display: flex; align-items: start; gap: 12px; color: var(--text-dim);">
+                                <input type="checkbox"
+                                    style="margin-top: 4px; width: 18px; height: 18px; accent-color: var(--primary);">
+                                <span>Acceptance letter from educational institution</span>
+                            </label>
+                            <label style="display: flex; align-items: start; gap: 12px; color: var(--text-dim);">
+                                <input type="checkbox"
+                                    style="margin-top: 4px; width: 18px; height: 18px; accent-color: var(--primary);">
+                                <span>Proof of financial support (bank statements, scholarship letters)</span>
+                            </label>
+                            <label style="display: flex; align-items: start; gap: 12px; color: var(--text-dim);">
+                                <input type="checkbox"
+                                    style="margin-top: 4px; width: 18px; height: 18px; accent-color: var(--primary);">
+                                <span>Completed visa application form</span>
+                            </label>
+                            <label style="display: flex; align-items: start; gap: 12px; color: var(--text-dim);">
+                                <input type="checkbox"
+                                    style="margin-top: 4px; width: 18px; height: 18px; accent-color: var(--primary);">
+                                <span>Passport-sized photos (specific requirements vary by country)</span>
+                            </label>
+                            <label style="display: flex; align-items: start; gap: 12px; color: var(--text-dim);">
+                                <input type="checkbox"
+                                    style="margin-top: 4px; width: 18px; height: 18px; accent-color: var(--primary);">
+                                <span>Visa application fee payment receipt</span>
+                            </label>
+                            <label style="display: flex; align-items: start; gap: 12px; color: var(--text-dim);">
+                                <input type="checkbox"
+                                    style="margin-top: 4px; width: 18px; height: 18px; accent-color: var(--primary);">
+                                <span>Health insurance proof</span>
+                            </label>
+                            <label style="display: flex; align-items: start; gap: 12px; color: var(--text-dim);">
+                                <input type="checkbox"
+                                    style="margin-top: 4px; width: 18px; height: 18px; accent-color: var(--primary);">
+                                <span>Academic transcripts and certificates</span>
+                            </label>
+                            <label style="display: flex; align-items: start; gap: 12px; color: var(--text-dim);">
+                                <input type="checkbox"
+                                    style="margin-top: 4px; width: 18px; height: 18px; accent-color: var(--primary);">
+                                <span>Statement of purpose or study plan</span>
+                            </label>
+                            <label style="display: flex; align-items: start; gap: 12px; color: var(--text-dim);">
+                                <input type="checkbox"
+                                    style="margin-top: 4px; width: 18px; height: 18px; accent-color: var(--primary);">
+                                <span>Return flight reservation (some countries)</span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <a href="https://travel.state.gov/content/travel/en/us-visas/study.html" target="_blank"
+                        class="resource-link">US Student Visas</a>
+                    <a href="https://www.gov.uk/student-visa" target="_blank" class="resource-link">UK Student Visas</a>
+                    <a href="https://www.germany.info/us-en/service/visa" target="_blank" class="resource-link">Germany
+                        Student Visas</a>
+                    <a href="https://immi.homeaffairs.gov.au/visas/getting-a-visa/visa-listing/student-500"
+                        target="_blank" class="resource-link">Australia Student Visas</a>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Packing List for Study Abroad</h3>
+                <p class="feature-card-text">
+                    Pack smart for your semester or year abroad. Bring essentials but leave room in luggage for
+                    souvenirs. Check airline weight limits and host country voltage for electronics.
+                </p>
+                <div class="tool-container">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                        <div>
+                            <h4 style="color: var(--primary); margin-bottom: 10px;">Documents</h4>
+                            <ul style="color: var(--text-dim); line-height: 1.8; font-size: 14px; margin-left: 20px;">
+                                <li>Passport and visa</li>
+                                <li>Acceptance letter copies</li>
+                                <li>Travel insurance documents</li>
+                                <li>Emergency contacts list</li>
+                                <li>Prescriptions (if needed)</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 style="color: var(--primary); margin-bottom: 10px;">Clothing</h4>
+                            <ul style="color: var(--text-dim); line-height: 1.8; font-size: 14px; margin-left: 20px;">
+                                <li>1 week of everyday clothes</li>
+                                <li>1-2 formal outfits</li>
+                                <li>Comfortable walking shoes</li>
+                                <li>Weather-appropriate jacket</li>
+                                <li>Swimsuit (if relevant)</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 style="color: var(--primary); margin-bottom: 10px;">Electronics</h4>
+                            <ul style="color: var(--text-dim); line-height: 1.8; font-size: 14px; margin-left: 20px;">
+                                <li>Laptop and charger</li>
+                                <li>Phone and charger</li>
+                                <li>Universal power adapter</li>
+                                <li>Portable charger</li>
+                                <li>Camera (optional)</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 style="color: var(--primary); margin-bottom: 10px;">Essentials</h4>
+                            <ul style="color: var(--text-dim); line-height: 1.8; font-size: 14px; margin-left: 20px;">
+                                <li>Toiletries (travel size)</li>
+                                <li>Medications</li>
+                                <li>Sunscreen</li>
+                                <li>Small first aid kit</li>
+                                <li>Reusable water bottle</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section 4: Exchange Student Network -->
+        <section class="content-section">
+            <div class="section-header">
+                <div class="section-number">04 / Network</div>
+                <div>
+                    <h2 class="section-title">Exchange Student Network</h2>
+                    <p class="section-description">
+                        Connect with current exchange students. Ask questions in forums organized by destination. Buddy
+                        matching pairs incoming and outgoing students. Photo and video diaries from students abroad show
+                        real experiences.
+                    </p>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Student Q&A Forums</h3>
+                <p class="feature-card-text">
+                    Ask questions and get answers from students currently studying abroad or who recently returned.
+                    Topics include housing, classes, culture shock, budgeting, and making friends.
+                </p>
+                <div class="tool-container">
+                    <div
+                        style="background: rgba(26, 45, 71, 0.5); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 15px;">
+                        <div style="display: flex; justify-content: between; align-items: start; margin-bottom: 10px;">
+                            <div style="flex: 1;">
+                                <h4 style="color: var(--text); margin-bottom: 5px; font-size: 16px;">How do I open a
+                                    bank account in Spain?</h4>
+                                <p style="color: var(--text-muted); font-size: 13px;">Posted by Sarah M. in Barcelona
+                                    Forum | 3 replies</p>
+                            </div>
+                            <span
+                                style="background: rgba(50, 184, 198, 0.2); padding: 4px 10px; border-radius: 4px; color: var(--primary); font-size: 11px; white-space: nowrap;">ANSWERED</span>
+                        </div>
+                        <p style="color: var(--text-dim); font-size: 14px; line-height: 1.6;">I need to open a bank
+                            account but don't speak much Spanish. Which banks are student-friendly? What documents do I
+                            need?</p>
+                    </div>
+                    <div
+                        style="background: rgba(26, 45, 71, 0.5); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 15px;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                            <div style="flex: 1;">
+                                <h4 style="color: var(--text); margin-bottom: 5px; font-size: 16px;">Best weekend trips
+                                    from Paris?</h4>
+                                <p style="color: var(--text-muted); font-size: 13px;">Posted by Mike T. in France Forum
+                                    | 8 replies</p>
+                            </div>
+                            <span
+                                style="background: rgba(74, 222, 128, 0.2); padding: 4px 10px; border-radius: 4px; color: var(--accent-green); font-size: 11px; white-space: nowrap;">ACTIVE</span>
+                        </div>
+                        <p style="color: var(--text-dim); font-size: 14px; line-height: 1.6;">Looking for affordable
+                            weekend trip ideas from Paris. Train or bus preferred. What did you visit?</p>
+                    </div>
+                    <div
+                        style="background: rgba(26, 45, 71, 0.5); border: 1px solid var(--border); border-radius: 12px; padding: 20px;">
+                        <div
+                            style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 10px;">
+                            <div style="flex: 1;">
+                                <h4 style="color: var(--text); margin-bottom: 5px; font-size: 16px;">Dealing with
+                                    homesickness in Tokyo</h4>
+                                <p style="color: var(--text-muted); font-size: 13px;">Posted by Lisa K. in Japan Forum |
+                                    12 replies</p>
+                            </div>
+                            <span
+                                style="background: rgba(251, 191, 36, 0.2); padding: 4px 10px; border-radius: 4px; color: var(--accent-gold); font-size: 11px; white-space: nowrap;">POPULAR</span>
+                        </div>
+                        <p style="color: var(--text-dim); font-size: 14px; line-height: 1.6;">Been here 3 weeks and
+                            really missing home. How did you cope with homesickness? Any tips?</p>
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <a href="https://www.reddit.com/r/studyabroad/" target="_blank" class="resource-link">r/studyabroad
+                        Reddit</a>
+                    <a href="https://www.thestudentroom.co.uk/forumdisplay.php?f=159" target="_blank"
+                        class="resource-link">The Student Room Forum</a>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Buddy Matching System</h3>
+                <p class="feature-card-text">
+                    Get paired with a student who studied in your destination or a local student at your host
+                    university. Ask questions, get advice, and make a friend before arrival.
+                </p>
+                <div class="tool-container">
+                    <div style="text-align: center; padding: 40px;">
+                        <p
+                            style="color: var(--text-dim); margin-bottom: 30px; max-width: 600px; margin-left: auto; margin-right: auto;">
+                            Fill out your profile to get matched with a buddy. We pair you based on destination,
+                            interests, major, and language skills.</p>
+                        <button class="btn btn-primary">Create Buddy Profile</button>
+                    </div>
+                    <div
+                        style="background: rgba(50, 184, 198, 0.05); border-radius: 12px; padding: 25px; margin-top: 30px;">
+                        <h4 style="color: var(--primary); margin-bottom: 15px;">How Buddy Matching Works</h4>
+                        <ol style="color: var(--text-dim); line-height: 2; margin-left: 20px;">
+                            <li>Complete your profile with destination, dates, interests</li>
+                            <li>Our system matches you with compatible students</li>
+                            <li>You receive buddy contact info via email</li>
+                            <li>Connect through email, WhatsApp, or video call</li>
+                            <li>Ask questions and get insider tips</li>
+                            <li>Meet in person when you arrive (optional)</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Photo & Video Diaries</h3>
+                <p class="feature-card-text">
+                    See what daily life looks like abroad through student vlogs and photo collections. Real experiences
+                    from real students. Get honest perspectives on challenges and highlights.
+                </p>
+                <div class="tool-container">
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
+                        <div
+                            style="background: rgba(26, 45, 71, 0.5); border: 1px solid var(--border); border-radius: 12px; overflow: hidden;">
+                            <div
+                                style="height: 180px; background: linear-gradient(135deg, rgba(50, 184, 198, 0.3), rgba(155, 107, 204, 0.3)); display: flex; align-items: center; justify-content: center; font-size: 4rem;">
+                                🎥</div>
+                            <div style="padding: 20px;">
+                                <h4 style="color: var(--primary); margin-bottom: 8px;">Week 1 in Seoul</h4>
+                                <p style="color: var(--text-dim); font-size: 14px; margin-bottom: 10px;">First
+                                    impressions, moving into dorm, orientation week</p>
+                                <p style="color: var(--text-muted); font-size: 12px;">Posted by Alex C. | 15 min video
+                                </p>
+                            </div>
+                        </div>
+                        <div
+                            style="background: rgba(26, 45, 71, 0.5); border: 1px solid var(--border); border-radius: 12px; overflow: hidden;">
+                            <div
+                                style="height: 180px; background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(230, 129, 97, 0.3)); display: flex; align-items: center; justify-content: center; font-size: 4rem;">
+                                📸</div>
+                            <div style="padding: 20px;">
+                                <h4 style="color: var(--primary); margin-bottom: 8px;">My Florence Semester</h4>
+                                <p style="color: var(--text-dim); font-size: 14px; margin-bottom: 10px;">Photo
+                                    collection: art, food, travel, friends</p>
+                                <p style="color: var(--text-muted); font-size: 12px;">Posted by Emma R. | 120 photos</p>
+                            </div>
+                        </div>
+                        <div
+                            style="background: rgba(26, 45, 71, 0.5); border: 1px solid var(--border); border-radius: 12px; overflow: hidden;">
+                            <div
+                                style="height: 180px; background: linear-gradient(135deg, rgba(74, 222, 128, 0.3), rgba(50, 184, 198, 0.3)); display: flex; align-items: center; justify-content: center; font-size: 4rem;">
+                                🎥</div>
+                            <div style="padding: 20px;">
+                                <h4 style="color: var(--primary); margin-bottom: 8px;">London Student Life</h4>
+                                <p style="color: var(--text-dim); font-size: 14px; margin-bottom: 10px;">Classes,
+                                    exploring city, weekend trips</p>
+                                <p style="color: var(--text-muted); font-size: 12px;">Posted by David K. | 8 videos</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <a href="https://www.youtube.com/results?search_query=study+abroad+vlog" target="_blank"
+                        class="resource-link">YouTube Study Abroad Vlogs</a>
+                    <a href="https://www.instagram.com/explore/tags/studyabroad/" target="_blank"
+                        class="resource-link">Instagram Study Abroad</a>
+                </div>
+            </div>
+        </section>
+        <!-- Section 5: Budget Planner -->
+        <section class="content-section">
+            <div class="section-header">
+                <div class="section-number">05 / Budget</div>
+                <div>
+                    <h2 class="section-title">Budget Planner</h2>
+                    <p class="section-description">
+                        Cost of living calculators by city. Currency converter with historical trends. Student discount
+                        resources. Part-time work regulations by country. Plan your finances before departure.
+                    </p>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Cost of Living Calculator</h3>
+                <p class="feature-card-text">
+                    Compare living costs between your home city and study abroad destination. Data covers rent, food,
+                    transportation, entertainment. Budget accurately to avoid financial stress abroad.
+                </p>
+                <div class="tool-container">
+                    <div
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                        <div>
+                            <label
+                                style="display: block; color: var(--text-dim); margin-bottom: 8px; font-size: 14px;">Your
+                                Home City:</label>
+                            <select id="home-city"
+                                style="width: 100%; padding: 12px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px;">
+                                <option>New York, USA</option>
+                                <option>Los Angeles, USA</option>
+                                <option>Chicago, USA</option>
+                                <option>Mumbai, India</option>
+                                <option>Delhi, India</option>
+                                <option>Bangalore, India</option>
+                                <option>London, UK</option>
+                                <option>Toronto, Canada</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label
+                                style="display: block; color: var(--text-dim); margin-bottom: 8px; font-size: 14px;">Study
+                                Abroad City:</label>
+                            <select id="abroad-city"
+                                style="width: 100%; padding: 12px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px;">
+                                <option>Barcelona, Spain</option>
+                                <option>Rome, Italy</option>
+                                <option>Paris, France</option>
+                                <option>Berlin, Germany</option>
+                                <option>Tokyo, Japan</option>
+                                <option>Sydney, Australia</option>
+                                <option>London, UK</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" id="compare-costs">Compare Cities</button>
+                    <div id="cost-results" style="display: none; margin-top: 30px;">
+                        <canvas id="cost-chart" style="max-height: 350px;"></canvas>
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <a href="https://www.numbeo.com/cost-of-living/" target="_blank" class="resource-link">Numbeo Cost
+                        of Living</a>
+                    <a href="https://www.expatistan.com/cost-of-living" target="_blank"
+                        class="resource-link">Expatistan</a>
+                    <a href="https://www.budgetyourtrip.com" target="_blank" class="resource-link">Budget Your Trip</a>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Currency Converter</h3>
+                <p class="feature-card-text">
+                    Convert currencies with real-time exchange rates. See how much your money is worth in your
+                    destination country. Plan your budget in local currency.
+                </p>
+                <div class="tool-container">
+                    <div
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px;">
+                        <div>
+                            <label
+                                style="display: block; color: var(--text-dim); margin-bottom: 8px; font-size: 14px;">Amount:</label>
+                            <input type="number" id="currency-amount" value="1000"
+                                style="width: 100%; padding: 12px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px;">
+                        </div>
+                        <div>
+                            <label
+                                style="display: block; color: var(--text-dim); margin-bottom: 8px; font-size: 14px;">From:</label>
+                            <select id="from-currency"
+                                style="width: 100%; padding: 12px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px;">
+                                <option value="USD">USD - US Dollar</option>
+                                <option value="EUR">EUR - Euro</option>
+                                <option value="GBP">GBP - British Pound</option>
+                                <option value="INR">INR - Indian Rupee</option>
+                                <option value="JPY">JPY - Japanese Yen</option>
+                                <option value="AUD">AUD - Australian Dollar</option>
+                                <option value="CAD">CAD - Canadian Dollar</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label
+                                style="display: block; color: var(--text-dim); margin-bottom: 8px; font-size: 14px;">To:</label>
+                            <select id="to-currency"
+                                style="width: 100%; padding: 12px; background: var(--bg-dark); border: 1px solid var(--border); border-radius: 6px; color: var(--text); font-size: 14px;">
+                                <option value="EUR">EUR - Euro</option>
+                                <option value="USD">USD - US Dollar</option>
+                                <option value="GBP">GBP - British Pound</option>
+                                <option value="INR">INR - Indian Rupee</option>
+                                <option value="JPY">JPY - Japanese Yen</option>
+                                <option value="AUD">AUD - Australian Dollar</option>
+                                <option value="CAD">CAD - Canadian Dollar</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button class="btn btn-primary" id="convert-currency">Convert</button>
+                    <div id="conversion-result"
+                        style="display: none; margin-top: 20px; padding: 20px; background: rgba(50, 184, 198, 0.1); border-radius: 8px; text-align: center;">
+                        <p style="color: var(--text-dim); margin-bottom: 10px;">Converted Amount:</p>
+                        <p id="converted-amount"
+                            style="font-family: 'Space Mono', monospace; font-size: 2.5rem; color: var(--primary);">0.00
+                        </p>
+                    </div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <a href="https://www.xe.com" target="_blank" class="resource-link">XE Currency Converter</a>
+                    <a href="https://www.oanda.com/currency-converter/" target="_blank" class="resource-link">OANDA
+                        Converter</a>
+                </div>
+            </div>
+
+            <div class="feature-card">
+                <h3 class="feature-card-title">Student Discounts & Work Permits</h3>
+                <p class="feature-card-text">
+                    Access student discounts worldwide with ISIC card. Learn about part-time work regulations in your
+                    destination. Many countries allow 15-20 hours per week for international students.
+                </p>
+                <div style="margin-top: 20px;">
+                    <a href="https://www.isic.org" target="_blank" class="resource-link">ISIC Card (International
+                        Student ID)</a>
+                    <a href="https://www.myunidays.com" target="_blank" class="resource-link">UNiDAYS Discounts</a>
+                    <a href="https://www.studentbeans.com" target="_blank" class="resource-link">Student Beans</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer Section -->
+        <section class="content-section" style="padding-bottom: 60px;">
+            <div class="feature-card"
+                style="text-align: center; background: linear-gradient(135deg, rgba(50, 184, 198, 0.1), rgba(155, 107, 204, 0.1)); border: 2px solid var(--primary);">
+                <h3 class="feature-card-title">Start Your Global Journey</h3>
+                <p class="feature-card-text" style="max-width: 700px; margin: 0 auto 30px;">
+                    Study abroad transforms lives. Gain new perspectives, build international networks, and develop
+                    skills employers value. These resources make global education accessible to all students.
+                </p>
+                <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+                    <button class="btn btn-primary"
+                        onclick="document.getElementById('globe-canvas').scrollIntoView({behavior: 'smooth'})">Explore
+                        Globe</button>
+                    <a href="https://www.goabroad.com/study-abroad" target="_blank" class="btn btn-secondary"
+                        style="text-decoration: none; border: 2px solid var(--primary); color: var(--primary);">Browse
+                        Programs</a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        // Custom Cursor
+        const cursor = document.getElementById('cursor');
+        let mouseX = 0;
+        let mouseY = 0;
+        let cursorX = 0;
+        let cursorY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        function animateCursor() {
+            cursorX += (mouseX - cursorX) * 0.2;
+            cursorY += (mouseY - cursorY) * 0.2;
+            cursor.style.left = cursorX + 'px';
+            cursor.style.top = cursorY + 'px';
+            requestAnimationFrame(animateCursor);
+        }
+        animateCursor();
+
+        document.querySelectorAll('a, button, input, select, textarea').forEach(el => {
+            el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+            el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+        });
+
+        // Background Canvas Animation
+        const bgCanvas = document.getElementById('bg-canvas');
+        const bgCtx = bgCanvas.getContext('2d');
+
+        function resizeBgCanvas() {
+            bgCanvas.width = window.innerWidth;
+            bgCanvas.height = document.documentElement.scrollHeight;
+        }
+        resizeBgCanvas();
+        window.addEventListener('resize', resizeBgCanvas);
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * bgCanvas.width;
+                this.y = Math.random() * bgCanvas.height;
+                this.vx = (Math.random() - 0.5) * 0.4;
+                this.vy = (Math.random() - 0.5) * 0.4;
+                this.radius = Math.random() * 2 + 1;
+                this.opacity = Math.random() * 0.4 + 0.2;
+            }
+
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                if (this.x < 0 || this.x > bgCanvas.width) this.vx *= -1;
+                if (this.y < 0 || this.y > bgCanvas.height) this.vy *= -1;
+            }
+
+            draw() {
+                bgCtx.beginPath();
+                bgCtx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+                bgCtx.fillStyle = `rgba(50, 184, 198, ${this.opacity})`;
+                bgCtx.fill();
+            }
+        }
+
+        const particles = [];
+        for (let i = 0; i < 80; i++) {
+            particles.push(new Particle());
+        }
+
+        function animateBg() {
+            bgCtx.clearRect(0, 0, bgCanvas.width, bgCanvas.height);
+            particles.forEach(particle => {
+                particle.update();
+                particle.draw();
+            });
+            requestAnimationFrame(animateBg);
+        }
+        animateBg();
+
+        // 3D Globe with Study Abroad Destinations
+        const globeCanvas = document.getElementById('globe-canvas');
+        const globeScene = new THREE.Scene();
+        const globeCamera = new THREE.PerspectiveCamera(75, globeCanvas.offsetWidth / 600, 0.1, 1000);
+        const globeRenderer = new THREE.WebGLRenderer({ canvas: globeCanvas, antialias: true, alpha: true });
+        globeRenderer.setSize(globeCanvas.offsetWidth, 600);
+        globeRenderer.setClearColor(0x000000, 0);
+
+        const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+        globeScene.add(ambientLight);
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+        directionalLight.position.set(5, 3, 5);
+        globeScene.add(directionalLight);
+
+        const globeGeometry = new THREE.SphereGeometry(2, 64, 64);
+        const globeMaterial = new THREE.MeshPhongMaterial({
+            color: 0x32b8c6,
+            emissive: 0x1a5a64,
+            shininess: 30,
+            transparent: true,
+            opacity: 0.8
+        });
+        const globe = new THREE.Mesh(globeGeometry, globeMaterial);
+        globeScene.add(globe);
+
+        const wireframeGeometry = new THREE.SphereGeometry(2.01, 32, 32);
+        const wireframeMaterial = new THREE.MeshBasicMaterial({
+            color: 0x32b8c6,
+            wireframe: true,
+            transparent: true,
+            opacity: 0.1
+        });
+        const wireframe = new THREE.Mesh(wireframeGeometry, wireframeMaterial);
+        globeScene.add(wireframe);
+
+        const destinations = [
+            { name: 'London', lat: 51.5, lon: -0.1, popular: true },
+            { name: 'Paris', lat: 48.8, lon: 2.3, popular: true },
+            { name: 'Barcelona', lat: 41.4, lon: 2.2, popular: true },
+            { name: 'Rome', lat: 41.9, lon: 12.5, popular: true },
+            { name: 'Berlin', lat: 52.5, lon: 13.4, popular: true },
+            { name: 'Tokyo', lat: 35.7, lon: 139.7, popular: true },
+            { name: 'Sydney', lat: -33.9, lon: 151.2, popular: true },
+            { name: 'Toronto', lat: 43.7, lon: -79.4, popular: false },
+            { name: 'Seoul', lat: 37.6, lon: 127.0, popular: false },
+            { name: 'Amsterdam', lat: 52.4, lon: 4.9, popular: false }
+        ];
+
+        destinations.forEach(dest => {
+            const phi = (90 - dest.lat) * (Math.PI / 180);
+            const theta = (dest.lon + 180) * (Math.PI / 180);
+
+            const x = 2 * Math.sin(phi) * Math.cos(theta);
+            const y = 2 * Math.cos(phi);
+            const z = 2 * Math.sin(phi) * Math.sin(theta);
+
+            const markerGeometry = new THREE.SphereGeometry(0.05, 16, 16);
+            const markerMaterial = new THREE.MeshBasicMaterial({
+                color: dest.popular ? 0xff4444 : 0x4444ff
+            });
+            const marker = new THREE.Mesh(markerGeometry, markerMaterial);
+            marker.position.set(x, y, z);
+            globeScene.add(marker);
+        });
+
+        globeCamera.position.z = 5;
+
+        const globeControls = new THREE.OrbitControls(globeCamera, globeCanvas);
+        globeControls.enableDamping = true;
+        globeControls.dampingFactor = 0.05;
+        globeControls.enableZoom = true;
+        globeControls.autoRotate = true;
+        globeControls.autoRotateSpeed = 0.5;
+
+        function animateGlobe() {
+            requestAnimationFrame(animateGlobe);
+            globeControls.update();
+            globeRenderer.render(globeScene, globeCamera);
+        }
+        animateGlobe();
+
+        // ROI Calculator
+        document.getElementById('calculate-roi').addEventListener('click', function () {
+            const cost = parseFloat(document.getElementById('program-cost').value);
+            const salaryIncrease = parseFloat(document.getElementById('salary-increase').value);
+
+            const yearsToBreakEven = Math.ceil(cost / salaryIncrease);
+            const years = [];
+            const cumulative = [];
+
+            for (let i = 0; i <= 10; i++) {
+                years.push(`Year ${i}`);
+                cumulative.push((salaryIncrease * i) - cost);
+            }
+
+            document.getElementById('breakeven-time').textContent = yearsToBreakEven + ' years';
+
+            const ctx = document.getElementById('roi-chart').getContext('2d');
+            if (window.roiChart) window.roiChart.destroy();
+
+            window.roiChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: years,
+                    datasets: [{
+                        label: 'Net Benefit ($)',
+                        data: cumulative,
+                        borderColor: '#32b8c6',
+                        backgroundColor: 'rgba(50, 184, 198, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { labels: { color: '#e8f1f5' } },
+                        title: {
+                            display: true,
+                            text: 'Study Abroad ROI Over Time',
+                            color: '#e8f1f5',
+                            font: { size: 16 }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            ticks: {
+                                color: '#a7b8c4',
+                                callback: function (value) { return '$' + value.toLocaleString(); }
+                            },
+                            grid: { color: 'rgba(50, 184, 198, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#a7b8c4' },
+                            grid: { color: 'rgba(50, 184, 198, 0.1)' }
+                        }
+                    }
+                }
+            });
+
+            document.getElementById('roi-results').style.display = 'block';
+        });
+
+        // Cost of Living Comparison
+        const cityCosts = {
+            'New York, USA': { rent: 3000, food: 600, transport: 130, entertainment: 200 },
+            'Los Angeles, USA': { rent: 2500, food: 550, transport: 150, entertainment: 180 },
+            'Chicago, USA': { rent: 1800, food: 500, transport: 100, entertainment: 150 },
+            'Mumbai, India': { rent: 600, food: 200, transport: 30, entertainment: 50 },
+            'Delhi, India': { rent: 500, food: 180, transport: 25, entertainment: 45 },
+            'Bangalore, India': { rent: 650, food: 220, transport: 35, entertainment: 55 },
+            'London, UK': { rent: 2200, food: 550, transport: 180, entertainment: 200 },
+            'Toronto, Canada': { rent: 1800, food: 500, transport: 130, entertainment: 160 },
+            'Barcelona, Spain': { rent: 1000, food: 350, transport: 60, entertainment: 120 },
+            'Rome, Italy': { rent: 1100, food: 380, transport: 50, entertainment: 130 },
+            'Paris, France': { rent: 1400, food: 450, transport: 75, entertainment: 150 },
+            'Berlin, Germany': { rent: 900, food: 350, transport: 80, entertainment: 110 },
+            'Tokyo, Japan': { rent: 1300, food: 500, transport: 100, entertainment: 140 },
+            'Sydney, Australia': { rent: 1900, food: 550, transport: 120, entertainment: 170 }
+        };
+
+        document.getElementById('compare-costs').addEventListener('click', function () {
+            const homeCity = document.getElementById('home-city').value;
+            const abroadCity = document.getElementById('abroad-city').value;
+
+            const homeCosts = cityCosts[homeCity];
+            const abroadCosts = cityCosts[abroadCity];
+
+            const ctx = document.getElementById('cost-chart').getContext('2d');
+            if (window.costChart) window.costChart.destroy();
+
+            window.costChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['Rent', 'Food', 'Transport', 'Entertainment'],
+                    datasets: [{
+                        label: homeCity,
+                        data: [homeCosts.rent, homeCosts.food, homeCosts.transport, homeCosts.entertainment],
+                        backgroundColor: '#9b6bcc'
+                    }, {
+                        label: abroadCity,
+                        data: [abroadCosts.rent, abroadCosts.food, abroadCosts.transport, abroadCosts.entertainment],
+                        backgroundColor: '#32b8c6'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { labels: { color: '#e8f1f5' } },
+                        title: {
+                            display: true,
+                            text: 'Monthly Cost Comparison (USD)',
+                            color: '#e8f1f5',
+                            font: { size: 16 }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                color: '#a7b8c4',
+                                callback: function (value) { return '$' + value; }
+                            },
+                            grid: { color: 'rgba(50, 184, 198, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#a7b8c4' },
+                            grid: { color: 'rgba(50, 184, 198, 0.1)' }
+                        }
+                    }
+                }
+            });
+
+            document.getElementById('cost-results').style.display = 'block';
+        });
+
+        // Currency Converter (simplified rates)
+        const exchangeRates = {
+            'USD': 1,
+            'EUR': 0.92,
+            'GBP': 0.79,
+            'INR': 83.12,
+            'JPY': 149.50,
+            'AUD': 1.52,
+            'CAD': 1.36
+        };
+
+        document.getElementById('convert-currency').addEventListener('click', function () {
+            const amount = parseFloat(document.getElementById('currency-amount').value);
+            const fromCurrency = document.getElementById('from-currency').value;
+            const toCurrency = document.getElementById('to-currency').value;
+
+            const amountInUSD = amount / exchangeRates[fromCurrency];
+            const convertedAmount = amountInUSD * exchangeRates[toCurrency];
+
+            document.getElementById('converted-amount').textContent = convertedAmount.toFixed(2) + ' ' + toCurrency;
+            document.getElementById('conversion-result').style.display = 'block';
+        });
+
+        // Scroll reveal
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.feature-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+            observer.observe(card);
+        });
+
+        // Nav hide on scroll
+        let lastScroll = 0;
+        window.addEventListener('scroll', () => {
+            const currentScroll = window.pageYOffset;
+            const nav = document.querySelector('.nav-header');
+            if (currentScroll > lastScroll && currentScroll > 100) {
+                nav.style.transform = 'translateY(-100%)';
+            } else {
+                nav.style.transform = 'translateY(0)';
+            }
+            lastScroll = currentScroll;
+        });
+
+        // Responsive resize
+        window.addEventListener('resize', () => {
+            const globeWidth = globeCanvas.offsetWidth;
+            globeCamera.aspect = globeWidth / 600;
+            globeCamera.updateProjectionMatrix();
+            globeRenderer.setSize(globeWidth, 600);
+            resizeBgCanvas();
+        });
+
+        // --- START OVERLAY LOGIC ---
+        const overlay = document.getElementById('preview-overlay');
+        const seePageButton = document.getElementById('see-page-btn');
+        const goBackButton = document.getElementById('go-back-btn');
+
+        // Function to dismiss the overlay
+        const dismissOverlay = () => {
+            // Fade out the overlay by setting opacity to 0
+            overlay.style.opacity = '0';
+
+            // Remove it from the DOM flow after the transition completes
+            setTimeout(() => {
+                overlay.classList.add('hidden');
+            }, 300); // Wait 300ms for the transition
+        };
+
+        // 1. Handle "See Page" click
+        seePageButton.addEventListener('click', dismissOverlay);
+
+        // 2. Handle "Go Back" click (Simulates navigation to dashboard)
+        goBackButton.addEventListener('click', () => {
+            // IMPORTANT: Change '/dashboard-mock' to the actual URL of your main dashboard page.
+            window.location.href = '../dashboard';
+        });
+        // --- END OVERLAY LOGIC ---
+    </script>
+</body>
+
+</html>
